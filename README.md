@@ -13,7 +13,6 @@
 * java 类加载器 （ClassLoader？）
 * java 类的class属性
 * java 反射（wx聊天记录-知乎回答）
-* linux ctrl+z和ctrl+c的区别
 * c++/java中的多态
 * android mediarecorder 和 audioplayer
 * java 内存管理
