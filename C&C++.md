@@ -1,4 +1,4 @@
-- [0、C++中传指针与传引用的比较](#0c中传指针与传引用的比较)
+- [0、C++ 中传指针与传引用的比较](#0c-中传指针与传引用的比较)
 - [1、C 程序从源代码到可执行程序所经历的过程](#1c-程序从源代码到可执行程序所经历的过程)
   - [预处理](#预处理)
   - [编译](#编译)
@@ -11,6 +11,9 @@
   - [效率](#效率)
 - [3、内联函数](#3内联函数)
   - [一些不会被内联的情况](#一些不会被内联的情况)
+- [4、malloc/free 和 new/delete](#4mallocfree-和-newdelete)
+  - [malloc/free](#mallocfree)
+  - [new/delete](#newdelete)
 # 0、C++ 中传指针与传引用的比较
 当把引用作为参数传递的过程中，形式参数会作为局部变量在栈中开辟内存空间，存放的是实参变量的地址，对形参的任何操作都会被处理为间接寻址，即通过存放的这个地址去访问主调函数的实参变量。
 
@@ -104,3 +107,34 @@ inline function (int i) {
 * 通过函数指针调用内联函数
 * 构造函数和析构函数
 * 内联函数调用了其他函数
+
+# 4、malloc/free 和 new/delete
+## malloc/free
+函数原型
+```
+// 分配 heap 中的 NumBytes 个字节，如果分配成功则返回指向这块内存的指针，如果分配失败则返回 NULL
+// 必须检查是否分配成功！
+void* malloc(long NumBytes);
+
+// 释放 FirstByte 指向的那块内存，使该内存又可以被使用
+void free(void* FirstByte);
+```
+需要注意的有：
+* malloc 函数分配的空间实际会比 NumBytes 稍大一些，多出来的空间用来存储一些内存管理信息，如分配块的长度等
+* free 释放的是那块内存，而指针变量 FirstByte 的值并没有变化，也就是说它指向的仍然是那块内存，只是 free 之后那块内存你不能够再使用了。比如下面的程序是可以正确运行的：
+  ```
+    int* p = NULL;
+
+	p = (int*) malloc(sizeof(int));
+	*p = 1;
+	printf("%d", *p);
+	free(p);
+
+	p = (int*) malloc(sizeof(int));
+	*p = 1;
+	printf("%d", *p);
+	free(p);
+  ```
+
+## new/delete
+与 malloc/free 不同的是，new/delete 并不是函数（sizeof 也不是），而是 C++ 定义的关键字
