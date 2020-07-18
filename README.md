@@ -1,4 +1,7 @@
-# 待解决的问题
+# 面试笔记
+本项目为个人项目
+
+## 待解决的问题
 * c中static的作用
 * c++智能指针
 * sharedPreference的commit和apply的区别
