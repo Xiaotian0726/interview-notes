@@ -14,6 +14,7 @@
 - [4、malloc/free 和 new/delete](#4mallocfree-和-newdelete)
   - [malloc/free](#mallocfree)
   - [new/delete](#newdelete)
+  - [两者的区别](#两者的区别)
 # 0、C++ 中传指针与传引用的比较
 当把引用作为参数传递的过程中，形式参数会作为局部变量在栈中开辟内存空间，存放的是实参变量的地址，对形参的任何操作都会被处理为间接寻址，即通过存放的这个地址去访问主调函数的实参变量。
 
@@ -110,6 +111,8 @@ inline function (int i) {
 
 # 4、malloc/free 和 new/delete
 ## malloc/free
+malloc/free 是 C 语言的标准库函数，用于动态申请内存和释放内存
+
 函数原型
 ```
 // 分配 heap 中的 NumBytes 个字节，如果分配成功则返回指向这块内存的指针，如果分配失败则返回 NULL
@@ -138,3 +141,15 @@ void free(void* FirstByte);
 
 ## new/delete
 与 malloc/free 不同的是，new/delete 并不是函数（sizeof 也不是），而是 C++ 定义的关键字
+* new：分配内存空间，并调用一个或多个构造函数来构建对象
+* delete：为将被释放的内存的对象调用一个或多个析构函数，然后释放内存
+* 如果在 new 的时候使用了 []，则 delete 的时候也要使用 []
+
+## 两者的区别
+* malloc/free 是 C 的标准库函数，而 new/delete 是 C++ 的运算符
+* new 是类型安全的，而 malloc 不是。比如：
+  ```
+  int* p = new float[2];     // 编译器能够发现错误
+  int* p = (int*) malloc(2 * sizeof(float));     // 编译器不能发现错误
+  ```
+* 分配失败时的返回值不同。malloc 返回空指针 NULL，new 则会抛出 std::bad_alloc 异常

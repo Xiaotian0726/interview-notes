@@ -7,7 +7,6 @@
 * c++智能指针
 * sharedPreference的commit和apply的区别
 * android system_server
-* malloc/free和new/delete的区别
 * c++ 虚函数和纯虚函数的区别
 * c++ 虚函数表
 * java 类加载器 （ClassLoader？）
