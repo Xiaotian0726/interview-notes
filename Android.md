@@ -1,14 +1,14 @@
 - [0、Android 生成 APK 的过程](#0android-生成-apk-的过程)
 - [1、android.graphics.drawable.Drawable](#1androidgraphicsdrawabledrawable)
   - [官方解释](#官方解释)
-  - [Drawable作用于View](#drawable作用于view)
-  - [Drawable的常用子类](#drawable的常用子类)
-- [2、Android四大组件](#2android四大组件)
+  - [Drawable 作用于 View](#drawable-作用于-view)
+  - [Drawable 的常用子类](#drawable-的常用子类)
+- [2、Android 四大组件](#2android-四大组件)
   - [Activity](#activity)
   - [Service](#service)
   - [Content Provider](#content-provider)
   - [Broadcast Receiver](#broadcast-receiver)
-  - [重要组件Intent](#重要组件intent)
+  - [重要组件 Intent](#重要组件-intent)
 - [3、活动的生命周期](#3活动的生命周期)
 - [4、活动的启动模式](#4活动的启动模式)
   - [standard](#standard)
@@ -21,8 +21,8 @@
 - [6、数据持久化技术](#6数据持久化技术)
   - [文件存储](#文件存储)
   - [SharedPreferences](#sharedpreferences)
-  - [SQLite数据库存储](#sqlite数据库存储)
-- [7、Handler的原理](#7handler的原理)
+  - [SQLite 数据库存储](#sqlite-数据库存储)
+- [7、Handler 的原理](#7handler-的原理)
 - [8、Android ANR](#8android-anr)
   - [ANR 产生的原因](#anr-产生的原因)
   - [ANR 的类型](#anr-的类型)
@@ -41,7 +41,7 @@
 ## 官方解释
 Drawable是一个抽象类，是 “所有可绘制东西” 的一个抽象，大多数时候，我们只需要把各种不同类型的资源作为转化为 drawable，然后 View 会帮我们把它渲染到屏幕上。Drawable 类提供了一个通用 API，用于解析转化各种可视资源到 Canvas，跟 View 不一样，Drawable 不能接受任何事件以及用户交互。
 
-## Drawable作用于View
+## Drawable 作用于 View
 通过 View 的 setBackgroundColor 方法可以设置颜色为 View 的背景。比如：
 ```
 button.setBackgroundColor(Color.YELLOW);
@@ -69,7 +69,7 @@ public abstract @PixelFormat.Opacity int getOpacity();
 ```
 可以看到 draw 方法的参数中有一个 canvas 对象。可以理解为，View 通过 setBackground 方法为自己设置了一个 drawable 对象后，而 drawable 又有一个 draw 方法，那么 View 绘制自己的背景时，直接调用 drawable 对象的的 draw 方法，这个 draw 方法需要一个 canvas 对象，这里可直接把 View 的 Canvas 对象传递过去，那么 Drawable 就可以成功的把自己的绘制内容应用到 View 之上。
 
-## Drawable的常用子类
+## Drawable 的常用子类
 ColorDrawable：使用指定的颜色来填充画布。  
 GradientDrawable：表示一个渐变区域，可以实现线性渐变、发散渐变和平铺渐变等渐变效果。  
 BitmapDrawable：对bitmap的一种包装，可以设置它包装的bitmap在BitmapDrawable区域内的绘制方式，如平铺、拉伸填充或者保持图片原始尺寸。  
@@ -77,7 +77,7 @@ AnimationDrawable：实现Android帧动画，动画效果需要在java代码中�
 StateListDrawable：对应于xml中的selector，是开发中经常使用的Drawable子类，比如一个按钮正常状态和按下时候不同的样式就是用StateListDrawable实现的。  
 InsetDrawable：包含一个Drawble实例，通过设置inset属性值来定义插入的Drawable实例与自身四边的距离。当我们需要设置一个视觉尺寸小于View尺寸的背景，InsetDrawable就能派上用场了。
 
-# 2、Android四大组件
+# 2、Android 四大组件
 ## Activity
 一个Activity通常展现为一个可视化的用户界面。比如，一个activity可能展现为一个用户能够选择的菜单项列表或者展现一些图片以及图 片的标题。一个消息服务应用程序可能包括一个显示联系人列表的activity,一个编写信息的activity，以及其他一些查看信息和改动应用程序设 置的activity。尽管这些activity一起工作，共同组成了一个应用程序，但每个activity都是相对独立的。
 
@@ -98,7 +98,7 @@ ContentProvider（内容提供者）是Android中的四大组件之中的一个�
 
 BroadcastReceiver 是对发送出来的 Broadcast 进行过滤、接受和响应的组件。首先将要发送的消息和用于过滤的信息（Action，Category）装入一个 Intent 对象，然后通过调用 Context.sendBroadcast() 、 sendOrderBroadcast() 方法把 Intent 对象以广播形式发送出去。
 
-## 重要组件Intent
+## 重要组件 Intent
 Android中提供了Intent机制来协助应用间的交互与通讯，Intent负责对应用中一次操作的动作、动作涉及数据、附加数据进行描述，Android则根据此Intent的描述，负责找到对应的组件，将 Intent传递给调用的组件，并完成组件的调用。Intent不仅可用于应用程序之间，也可用于应用程序内部的 Activity / Service之间的交互。因此，Intent在这里起着一个媒体中介的作用，专门提供组件互相调用的相关信息，实现调用者与被调用者之间的解耦。
 
 # 3、活动的生命周期
@@ -148,14 +148,14 @@ SharedPreferences是使用键值对的方式来存储数据的。Android中主�
 
 
 
-## SQLite数据库存储
+## SQLite 数据库存储
 是Android系统内置的轻量级关系型数据库，占用资源很少，特别适合在移动设备上使用。它不仅支持标准的SQL语法，还遵循数据库的ACID事务。
 
 Android提供了SQLiteOpenHelper抽象类来让我们管理数据库。我们需要实现它的两个抽象方法，分别是onCreate()和onUpgrade()，然后分别在这两个方法中去实现创建、升级数据库的逻辑。
 
 SQLiteOpenHelper中还有两个非常重要的实例方法：getReadableDatabase()和getWriteableDatabase()。这两个方法分别创建或打开一个现有的数据库，并返回一个对数据库进行读写的对象。
 
-# 7、Handler的原理
+# 7、Handler 的原理
 Message是一个数据模型，可以携带少量数据在线程之间传递
 
 Handler用于发送和接受消息，有三个主要方法：
