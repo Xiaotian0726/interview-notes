@@ -16,7 +16,7 @@
   - [(1) String](#1-string)
   - [(2) StringBuilder](#2-stringbuilder)
   - [(3) StringBuffer](#3-stringbuffer)
-- [5、java 内存分配（栈、堆、静态域、常量池...)](#5java-内存分配栈堆静态域常量池)
+- [5、java 内存管理（栈、堆、静态域、常量池...)](#5java-内存管理栈堆静态域常量池)
 - [6、抽象类](#6抽象类)
 - [7、java.util.Collection](#7javautilcollection)
 - [8、java.util.Collections](#8javautilcollections)
@@ -24,6 +24,9 @@
 - [10、java.util.ArrayList 源码分析](#10javautilarraylist-源码分析)
 - [11、java.util.concurrent.ConcurrentHashMap源码分析](#11javautilconcurrentconcurrenthashmap源码分析)
 - [12、关于 Exception](#12关于-exception)
+  - [可检查异常](#可检查异常)
+  - [不可检查异常](#不可检查异常)
+  - [自定义异常](#自定义异常)
 - [13、java 进程和线程](#13java-进程和线程)
 - [14、java.lang.Thread](#14javalangthread)
 - [15、接口和抽象类](#15接口和抽象类)
@@ -41,6 +44,17 @@
   - [枚举](#枚举)
 - [18、volatile 关键字](#18volatile-关键字)
   - [volatile 保持原子性吗？](#volatile-保持原子性吗)
+- [19、Java 内存模型（JMM）](#19java-内存模型jmm)
+  - [8 种同步操作](#8-种同步操作)
+- [20、synchronize 关键字](#20synchronize-关键字)
+- [21、Java 四种引用类型](#21java-四种引用类型)
+  - [强引用](#强引用)
+  - [软引用](#软引用)
+  - [弱引用](#弱引用)
+  - [虚引用](#虚引用)
+- [22、Java 中的多态](#22java-中的多态)
+  - [多态的三个必要条件](#多态的三个必要条件)
+  - [实现方式](#实现方式)
 
 # 0、JVM Garbage Collection
 ## 垃圾判断算法
@@ -607,7 +621,7 @@ String的值是不可变的，这就导致每次对String的操作（如str += "
 ## (3) StringBuffer
 可变字符序列，继承自AbstractStringBuilder，线程安全，执行速度慢
 
-# 5、java 内存分配（栈、堆、静态域、常量池...)
+# 5、java 内存管理（栈、堆、静态域、常量池...)
 栈：存放基本数据类型和对象的引用，以及成员方法中的局部变量。栈的存取速度比堆块，仅次于寄存器。
 
 堆：存放对象本身
@@ -1018,12 +1032,14 @@ put方法是我们最关心的方法之一。和HashMap相同，ConcurrentHashMa
 未完待续...
 
 # 12、关于 Exception
-java中的Exception有两种：  
-(1)可检查异常：编译器要求必须处理的异常。在Exception类及其子类中，除了RuntimeException类及其子类外，其余都是可检查异常。这种异常编译器会强制要求处理它，需要使用try-catch语句去捕获处理或者使用throw子句抛出该异常让其他地方去处理它，否则编译器会不允许编译通过。
+## 可检查异常
+编译器要求必须处理的异常。在 Exception 类及其子类中，除了 RuntimeException 类及其子类外，其余都是可检查异常。这种异常编译器会强制要求处理它，需要使用 try-catch 语句去捕获处理或者使用 throw 子句抛出该异常让其他地方去处理它，否则编译器会不允许编译通过。
 
-(2)不可检查异常：编译器不强制要求处理的异常。该异常分来包括：运行时异常（RuntimeException）及其子类和错误（Error）及其子类。这种异常即使不使用try-catch子句捕获和throw子句抛出，编译器也会使得编译通过。
+## 不可检查异常
+编译器不强制要求处理的异常。该异常分来包括：运行时异常（RuntimeException）及其子类和错误（Error）及其子类。这种异常即使不使用 try-catch 子句捕获和 throw 子句抛出，编译器也会使得编译通过。
 
-自定义异常：java提供提供的异常体系可能不会完全包含我们遇见的错误，所以允许我们可以自定义异常。
+## 自定义异常
+Java提供提供的异常体系可能不会完全包含我们遇见的错误，所以允许我们可以自定义异常。
 
 # 13、java 进程和线程
 进程：程序的一次执行过程，操作系统进行资源分配和调度的最小单位。
@@ -1099,8 +1115,8 @@ Java接口是一系列方法的声明，是一些方法特征的集合，一个�
 在面向对象的概念中，所有的对象都是通过类来描绘的，但是反过来，并不是所有的类都是用来描绘对象的。如果一个类中没有包含足够的信息来描绘一个具体的对象，这样的类就是抽象类。
 
 ## 接口和抽象类的区别  
-(1) 接口中所有变量和方法都是抽象的，隐式地由public static final和public abstract修饰。而抽象类可以包含抽象方法和非抽象方法  
-(2) 类可以实现（implements）很多接口，但只能继承（extends）一个抽象类
+* 接口中所有变量和方法都是抽象的，隐式地由 public static final 和 public abstract 修饰。而抽象类可以包含抽象方法和非抽象方法  
+* 类可以实现（implements）很多接口，但只能继承（extends）一个抽象类
 
 ## 什么时候用接口，什么时候用抽象类？
 抽象类本质上仍是类，用于表达某种事物，只是由于层次过高无法具体地表示，需要被某个具体的类来继承；而接口一般用来描述一组行为，实现该接口的类需要能够执行或满足接口内定义的所有行为，类与接口之间不存在层次关系。
@@ -1273,3 +1289,60 @@ while (!inited) ;
 doSomethingWithConfig(context);
 ```
 如果不使用 volatile 关键字，由于指令重排，inited = true 可能会在 context = loadContext() 之前执行，这样线程 2 可能就会出现错误。但是如果用 volatile 关键字对 inited 进行修饰，则不会出现这种问题。
+
+# 19、Java 内存模型（JMM）
+## 8 种同步操作
+* lock：
+* unlock
+* read：
+* load：
+* use：
+* assign（赋值）：
+* store：
+* write：
+
+未完...
+
+# 20、synchronize 关键字
+synchronized 底层是用操作系统的 mutex lock 来实现的
+
+可以作用于以下对象：
+* 代码块
+* 方法
+* 类：作用于这个类的所有对象
+  ```
+  class ClassName {
+    public void method() {
+      synchronized(ClassName.class) {
+         // todo
+      }
+    }
+  }
+  ```
+
+# 21、Java 四种引用类型
+## 强引用
+```
+StringBuffer stringBuffer = new StringBuffer("Helloword");
+```
+可以直接访问目标对象，任何时候都不会被系统回收，可能导致内存泄露
+
+## 软引用
+可以通过 java.lang.ref.SoftReference 使用软引用
+
+## 弱引用
+可以用 java.lang.ref.WeakReference 实例来保存对一个 Java 对象的弱引用
+
+## 虚引用
+可以通过 java.lang.ref.PhantomReference 使用虚引用
+
+# 22、Java 中的多态
+## 多态的三个必要条件
+* 要有继承关系
+* 子类要重写父类的方法
+* 父类引用指向子类对象
+
+## 实现方式
+* 实现接口
+* 重写父类方法
+* 对方法进行重载
