@@ -6,9 +6,6 @@
 * C++ 智能指针
 * sharedPreference 的 commit 和 apply 的区别
 * android system_server
-* Java 类加载器 （ClassLoader？）
-* Java 类的 class 属性
-* Java 反射（wx 聊天记录-知乎回答）
 * android mediarecorder 和 audioplayer
 * C/C++ 内存管理
 * vector 用迭代器遍历和用下标遍历的区别

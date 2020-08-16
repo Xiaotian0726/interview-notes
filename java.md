@@ -55,6 +55,7 @@
 - [22、Java 中的多态](#22java-中的多态)
   - [多态的三个必要条件](#多态的三个必要条件)
   - [实现方式](#实现方式)
+- [23、Java 反射](#23java-反射)
 
 # 0、JVM Garbage Collection
 ## 垃圾判断算法
@@ -1346,3 +1347,104 @@ StringBuffer stringBuffer = new StringBuffer("Helloword");
 * 实现接口
 * 重写父类方法
 * 对方法进行重载
+
+# 23、Java 反射
+假设 `main` 方法中有以下代码：
+```
+A a = new A();
+```
+则创建对象的过程如下：
+* 类加载：ClassLoader 加载 .class 文件到内存，执行静态代码块和静态初始化语句
+* 执行 new，申请一块内存空间
+* 调用构造器，创建一个空白对象
+* 子类调用父类的构造器
+* 构造器执行：执行构造代码块和初始化语句、构造器内容
+
+![avatar](./markdown-pics/Java创建对象的过程.jpg)
+
+其中.class 文件是由类加载器加载的，其核心方法是 loadClass()：
+```
+protected Class<?> loadClass(String name, boolean resolve)
+        throws ClassNotFoundException
+    {
+        synchronized (getClassLoadingLock(name)) {
+            // 首先，检查是否已经加载该类
+            Class<?> c = findLoadedClass(name);
+            if (c == null) {
+                long t0 = System.nanoTime();
+                try {
+                    // 如果尚未加载，则遵循父优先的等级加载机制（所谓双亲委派机制）
+                    if (parent != null) {
+                        c = parent.loadClass(name, false);
+                    } else {
+                        c = findBootstrapClassOrNull(name);
+                    }
+                } catch (ClassNotFoundException e) {
+                    // ClassNotFoundException thrown if class not found
+                    // from the non-null parent class loader
+                }
+
+                if (c == null) {
+                    // 模板方法模式：如果还是没有加载成功，调用findClass()
+                    long t1 = System.nanoTime();
+                    c = findClass(name);
+
+                    // this is the defining class loader; record the stats
+                    sun.misc.PerfCounter.getParentDelegationTime().addTime(t1 - t0);
+                    sun.misc.PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);
+                    sun.misc.PerfCounter.getFindClasses().increment();
+                }
+            }
+            if (resolve) {
+                resolveClass(c);
+            }
+            return c;
+        }
+    }
+
+    // 子类应该重写该方法
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
+        throw new ClassNotFoundException(name);
+    }
+```
+上述的代码基本可以分为三个步骤：
+* 检查是否已经加载，如果有就直接返回，避免重复加载
+* 遵循父类优先加载机制，加载 .class 文件
+* 上面两步都失败了，调用 findClass()方法加载
+
+.class 文件被类加载器加载到内存中，并且 JVM 根据其字节数组创建了对应的 Class 对象。Class 对象是 Class 类的实例。Class 类准备了很多字段来表示一个 .class 文件的信息，对于字段、方法、构造器等
+
+Class 类的构造器是私有的，我们无法 new 一个 Class 对象，只能由 JVM 创建。JVM 在构造 Class 对象时，需要传入一个类的加载器，然后才会有上面的加载、创建过程
+```
+public final class Class<T> implements java.io.Serializable,
+                              GenericDeclaration,
+                              Type,
+                              AnnotatedElement {
+    private static final int ANNOTATION= 0x00002000;
+    private static final int ENUM      = 0x00004000;
+    private static final int SYNTHETIC = 0x00001000;
+
+    private static native void registerNatives();
+    static {
+        registerNatives();
+    }
+
+    /*
+     * Private constructor. Only the Java Virtual Machine creates Class objects.
+     * This constructor is not used and prevents the default constructor being
+     * generated.
+     */
+    private Class(ClassLoader loader) {
+        // Initialize final field for classLoader.  The initialization value of non-null
+        // prevents future JIT optimizations from assuming this final field is null.
+        classLoader = loader;
+    }
+```
+
+在日常开发中，反射的目的主要有两个：
+* 创建实例
+* 反射调用方法
+
+下面是Class、Field、Method、Constructor 四个对象的关系：
+
+![](markdown-pics/Class对象.jpg)
