@@ -6,7 +6,9 @@
     - [(1) 标记法。](#1-标记法)
     - [(2) 压缩法。](#2-压缩法)
     - [(3) 复制法。](#3-复制法)
-- [1、java.util.HashMap 源码分析](#1javautilhashmap-源码分析)
+- [1、java.util.HashMap](#1javautilhashmap)
+  - [基本介绍](#基本介绍)
+  - [源码分析](#源码分析)
 - [2、关于 HashCode()](#2关于-hashcode)
 - [3、关于 final](#3关于-final)
   - [(1) final 类](#1-final-类)
@@ -22,7 +24,7 @@
 - [8、java.util.Collections](#8javautilcollections)
 - [9、java.util.HashSet 源码分析](#9javautilhashset-源码分析)
 - [10、java.util.ArrayList 源码分析](#10javautilarraylist-源码分析)
-- [11、java.util.concurrent.ConcurrentHashMap源码分析](#11javautilconcurrentconcurrenthashmap源码分析)
+- [11、java.util.concurrent.ConcurrentHashMap](#11javautilconcurrentconcurrenthashmap)
 - [12、关于 Exception](#12关于-exception)
   - [可检查异常](#可检查异常)
   - [不可检查异常](#不可检查异常)
@@ -60,26 +62,41 @@
 # 0、JVM Garbage Collection
 ## 垃圾判断算法
 ### (1) 引用计数法。
-给每个对象添加一个计数器，当有地方引用该对象时计数器加1，当引用失效时计数器减1。用对象计数器是否为0来判断对象是否可被回收。<br>缺点：变量值被关联次数的增加或减少，都会引发引用计数机制的执行，这明显存在效率问题；无法解决交叉引用的问题；无法判断容器内以new的方式添加的变量是否为垃圾。
+给每个对象添加一个计数器，当有地方引用该对象时计数器加 1，当引用失效时计数器减 1。用对象计数器是否为 0 来判断对象是否可被回收。
+
+缺点：变量值被关联次数的增加或减少，都会引发引用计数机制的执行，这明显存在效率问题；无法解决交叉引用的问题；无法判断容器内以new的方式添加的变量是否为垃圾。
 ### (2) 可达性分析算法（标记法）。
-从GC Roots开始找到所有被引用的对象，并对其进行标记。最终没有被标记的对象将其判定为垃圾，可以解决对象之间交叉引用的问题。<br>缺点:多线程下存在垃圾漏报和误报<br>解决办法：stop-the-world。当JVM收到stop-the-world请求的时候，会等待所有的线程到达安全点，再让stop-the-world线程独占，清理垃圾。
+从 GC Roots 开始找到所有被引用的对象，并对其进行标记。最终没有被标记的对象将其判定为垃圾，可以解决对象之间交叉引用的问题。
+
+缺点:多线程下存在垃圾漏报和误报
+
+解决办法：stop-the-world。当 JVM 收到 stop-the-world 请求的时候，会等待所有的线程到达安全点，再让 stop-the-world 线程独占，清理垃圾。
 ```
-GC Root可以理解为堆外向堆内的引用，如：
+GC Root 可以理解为堆外向堆内的引用，如：
  1. 栈桢内的局部变量
  2. 类的静态成员变量
- 3. JNI的handler
+ 3. JNI 的 handler
  4. 已经开始还没有结束的线程。
 ```
 ## 垃圾回收算法
 ### (1) 标记法。
-是最基础的一种垃圾回收算法，先把内存区域中的垃圾进行标记，再把标记的这些垃圾清理掉。清理掉的垃圾原本所在的内存区域就变成未使用的内存区域，等待被再次使用。<br>缺点：存在内存碎片问题。  
-### (2) 压缩法。
-将存活的对象聚集在堆内存的起始区域，留出连续的内存空间，依赖压缩算法的实现。  
-### (3) 复制法。
-将可用内存按容量划分为大小相等的两块，每次只使用其中的一块。当这一块的内存用完了，就将还存活着的对象复制到另外一块上面，然后再把这一块空间全部清理掉。<br>缺点：大大降低内存利用率。
+是最基础的一种垃圾回收算法，先把内存区域中的垃圾进行标记，再把标记的这些垃圾清理掉。清理掉的垃圾原本所在的内存区域就变成未使用的内存区域，等待被再次使用。
 
-# 1、java.util.HashMap 源码分析
-基本介绍：HashTable类与HashMap几乎一致，区别在于HashTable不允许key和value为null。HashMap无法保证其中键值对的顺序，为基本的get和put操作提供了常数时间的性能。<br><br>
+缺点：存在内存碎片问题。
+
+### (2) 压缩法。
+将存活的对象聚集在堆内存的起始区域，留出连续的内存空间，依赖压缩算法的实现。
+
+### (3) 复制法。
+将可用内存按容量划分为大小相等的两块，每次只使用其中的一块。当这一块的内存用完了，就将还存活着的对象复制到另外一块上面，然后再把这一块空间全部清理掉。
+
+缺点：大大降低内存利用率。
+
+# 1、java.util.HashMap
+## 基本介绍
+HashTable 类与 HashMap 几乎一致，区别在于 HashTable 不允许 key 和 value 为 null。HashMap 无法保证其中键值对的顺序，为基本的 get 和 put 操作提供了常数时间的性能。
+
+## 源码分析
 
 ```
 public class HashMap<K,V> extends AbstractMap<K,V>
@@ -88,10 +105,11 @@ public class HashMap<K,V> extends AbstractMap<K,V>
         ...
     }
 ```
-实现Map<K, V>接口：需要定义size()，isEmpty()，containsKey(Object key)，containsValue(Object value)等方法。  
-实现Cloneable接口：需要定义clone()方法来创建副本。  
-实现Serializable接口：实现java.io.Serializable 接口的类是可序列化的。这个接口其实是个空接口，当我们让实体类实现Serializable接口时，其实是在告诉JVM此类可被序列化，可被默认的序列化机制序列化。便于数据传输，尤其是在远程调用的时候。  
-serialVersionUID适用于java序列化机制。简单来说，JAVA序列化的机制是通过判断类的serialVersionUID来验证的版本一致的。<br><br>
+* 实现 Map<K, V> 接口：需要定义 size()，isEmpty()，containsKey(Object key)，containsValue(Object value) 等方法。  
+* 实现 Cloneable 接口：需要定义 clone() 方法来创建副本。  
+* 实现 Serializable 接口：实现 java.io.Serializable 接口的类是可序列化的。这个接口其实是个空接口，当我们让实体类实现 Serializable 接口时，其实是在告诉 JVM 此类可被序列化，可被默认的序列化机制序列化。便于数据传输，尤其是在远程调用的时候。  
+* serialVersionUID 适用于 java 序列化机制。简单来说，JAVA 序列化的机制是通过判断类的 serialVersionUID 来验证的版本一致的。
+
 ```
 static final int DEFAULT_INITIAL_CAPACITY = 1 << 4; // aka 16
 static final int MAXIMUM_CAPACITY = 1 << 30;
@@ -100,10 +118,11 @@ static final int TREEIFY_THRESHOLD = 8;
 static final int UNTREEIFY_THRESHOLD = 6;
 static final int MIN_TREEIFY_CAPACITY = 64;
 ```
-DEFAULT_LOAD_FACTOR = 0.75f：加载因子是表示Hash表中元素的填满的程度。加载因子越大,填满的元素越多,空间利用率越高，但冲突的机会加大了。反之,加载因子越小,填满的元素越少,冲突的机会减小,但空间浪费多了。因此,必须在 "减少冲突"与"空间利用率"之间寻找一种平衡与折衷。  
-static final int TREEIFY_THRESHOLD = 8：当加入元素后Map中的元素个数大于等于这个值时，会转变为红黑树。  
-static final int UNTREEIFY_THRESHOLD = 6：  
-static final int MIN_TREEIFY_CAPACITY = 64：  <br><br>
+* DEFAULT_LOAD_FACTOR = 0.75f：加载因子是表示 Hash 表中元素的填满的程度。加载因子越大，填满的元素越多，空间利用率越高，但冲突的机会加大了。反之,加载因子越小,填满的元素越少,冲突的机会减小,但空间浪费多了。因此,必须在 "减少冲突"与"空间利用率"之间寻找一种平衡与折衷。  
+* static final int TREEIFY_THRESHOLD = 8：当加入元素后 Map 中的元素个数大于等于这个值时，会转变为红黑树。  
+* static final int UNTREEIFY_THRESHOLD = 6：  
+* static final int MIN_TREEIFY_CAPACITY = 64：
+
 
 ```
 static class Node<K,V> implements Map.Entry<K,V> {
@@ -146,15 +165,13 @@ static class Node<K,V> implements Map.Entry<K,V> {
         }
     }
 ```
-存储每个键值对的静态内部类Node<K, V>，实现了Map.Entry<K, V>接口，包含getKey()，getValue()，setValue()等函数。  
-在equals(Object o)方法中用到了Object.equals方法，其源码如下：
+存储每个键值对的静态内部类 Node<K, V>，实现了 Map.Entry<K, V> 接口，包含 getKey()，getValue()，setValue() 等函数。  
+在 equals(Object o) 方法中用到了 Object.equals 方法，其源码如下：
 ```
 public static boolean equals(Object a, Object b) {
     return (a == b) || (a != null && a.equals(b));
 }
 ```
-
-<br>
 
 ```
 static final int hash(Object key) {
@@ -162,7 +179,7 @@ static final int hash(Object key) {
     return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
 }
 ```
-h >>> 16取了key.hashCode的高16位放到低位，高位补0，再与key.hashCode进行异或操作。对于某一个键，通过该方法快速、高质量地计算出一个int类型的hash值，然后通过hash & (table.length - 1)来得到在table中的index。由于length绝大多数情况下都小于2^16，如果只使用hashCode作为hash值，则始终是hashCode的低位参与运算，没有用到高位，导致结果分布不均匀。因此该计算hash值的方法用到了hashCode的全部32位bits，结合异或运算，使得分布更加随机、均匀的同时，既不偏向0也不偏向1。<br><br>
+h >>> 16 取了 key.hashCode 的高 16 位放到低位，高位补 0，再与 key.hashCode 进行异或操作。对于某一个键，通过该方法快速、高质量地计算出一个 int 类型的 hash 值，然后通过 hash & (table.length - 1) 来得到在 table 中的 index。由于 length 绝大多数情况下都小于 2^16，如果只使用 hashCode 作为 hash 值，则始终是 hashCode 的低位参与运算，没有用到高位，导致结果分布不均匀。因此该计算 hash 值的方法用到了 hashCode 的全部 32 位 bits，结合异或运算，使得分布更加随机、均匀的同时，既不偏向 0 也不偏向 1
 
 ```
 static final int tableSizeFor(int cap) {
@@ -170,7 +187,7 @@ static final int tableSizeFor(int cap) {
     return (n < 0) ? 1 : (n >= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;
 }
 ```
-已知-1的补码为1111 1111 $\dots$ 1111(共32位)，令-1进行无符号右移若干位，相当于在高位把若干个1变为0，位数为cap-1的前导0的个数。当cap为2的幂时，例如cap = 16，此时n = cap-1 = 15，返回值为16；当cap不为2的幂时，例如cap = 15，此时n = 15，返回值为16。概括地讲，就是返回一个大于等于且最接近 cap 的2的幂次方整数。<br><br>
+已知 -1 的补码为 1111 1111 $\dots$ 1111(共32位)，令 -1 进行无符号右移若干位，相当于在高位把若干个 1 变为 0，位数为 cap-1 的前导 0 的个数。当 cap 为 2 的幂时，例如 cap = 16，此时 n = cap-1 = 15，返回值为 16；当 cap 不为 2 的幂时，例如 cap = 15，此时 n = 15，返回值为 16。概括地讲，就是返回一个大于等于且最接近 cap 的 2 的幂次方整数。
 
 ```
 /* ---------------- Fields -------------- */
@@ -184,12 +201,12 @@ transient int modCount;
 int threshold;
 final float loadFactor;
 ```
-table：表，可resize，长度永远都是0或者2的幂  
-entrySet：存放键值对的集合，主要用于迭代功能  
-size：键值对的数量  
-modCount：HashMap的数据被修改的次数，用于迭代过程中的Fail-Fast机制，使得当发生线程安全问题时，能及时的发现（操作前备份的count和当前modCount不相等）并抛出异常终止操作。   
-threshold：HashMap的扩容阈值，由当前的capacity和loadFactor决定。在HashMap中存储的键值对超过这个值时，capacity自动扩容容量为原来的二倍。  
-loadFactor：HashMap的负载因子，可计算出当前table长度下的扩容阈值：threshold = table.length * loadFactor。<br><br>
+* table：表，可 resize，长度永远都是 0 或者 2 的幂  
+* entrySet：存放键值对的集合，主要用于迭代功能  
+* size：键值对的数量  
+* modCount：HashMap 的数据被修改的次数，用于迭代过程中的 Fail-Fast 机制，使得当发生线程安全问题时，能及时的发现（操作前备份的 count 和当前 modCount 不相等）并抛出异常终止操作。   
+* threshold：HashMap 的扩容阈值，由当前的 capacity 和 loadFactor 决定。在 HashMap 中存储的键值对超过这个值时，capacity 自动扩容容量为原来的二倍。  
+* loadFactor：HashMap 的负载因子，可计算出当前 table 长度下的扩容阈值：threshold = table.length * loadFactor。
 
 ```
 public HashMap(int initialCapacity, float loadFactor) {
@@ -205,21 +222,21 @@ public HashMap(int initialCapacity, float loadFactor) {
     this.threshold = tableSizeFor(initialCapacity);
 }
 ```
-显式地给出initialCapacity和loadFactor的构造方法，其中loadFactor不能为NaN。初始化threshold时直接调用tableSizeFor(initialCapacity)函数。<br><br>
+显式地给出 initialCapacity 和 loadFactor 的构造方法，其中 loadFactor 不能为 NaN。初始化 threshold 时直接调用 tableSizeFor(initialCapacity) 函数。
 
 ```
 public HashMap(int initialCapacity) {
     this(initialCapacity, DEFAULT_LOAD_FACTOR);
 }
 ```
-只给出initialCapacity的构造方法，使用默认的loadFactor来调用上一个构造方法<br><br>
+只给出 initialCapacity 的构造方法，使用默认的 loadFactor 来调用上一个构造方法
 
 ```
 public HashMap() {
     this.loadFactor = DEFAULT_LOAD_FACTOR; // all other fields defaulted
 }
 ```
-所有参数均为默认值的构造方法<br><br>
+所有参数均为默认值的构造方法
 
 ```
 public HashMap(Map<? extends K, ? extends V> m) {
@@ -252,7 +269,7 @@ final void putMapEntries(Map<? extends K, ? extends V> m, boolean evict) {
     }
 }
 ```
-以某个特定的Map作为参数构造HashMap，调用putMapEntries函数把m的内容移到构造的HashMap中<br><br>
+以某个特定的Map作为参数构造 HashMap，调用 putMapEntries 函数把 m 的内容移到构造的 HashMap 中
 
 ```
 public int size() {
@@ -263,7 +280,7 @@ public boolean isEmpty() {
     return size == 0;
 }
 ```
-这俩函数没啥可说的<br><br>
+这俩函数没啥可说的
 
 ```
 public V get(Object key) {
@@ -292,14 +309,14 @@ final Node<K,V> getNode(int hash, Object key) {
     return null;
 }
 ```
-get函数调用了getNode函数，getNode函数的参数是key的hash值以及key本身，返回值是Node<K, V>。当table == null或table.length == 0或检索到的第一个元素为null时直接返回null。然后再判断第一个元素是否为目标元素，如果是则直接返回该元素，如果不是，再分树和链表两种情况继续检索。<br><br>
+get 函数调用了 getNode 函数，getNode 函数的参数是 key 的 hash 值以及 key 本身，返回值是 Node<K, V>。当 table == null 或 table.length == 0 或检索到的第一个元素为 null 时直接返回 null。然后再判断第一个元素是否为目标元素，如果是则直接返回该元素，如果不是，再分树和链表两种情况继续检索。
 
 ```
 public boolean containsKey(Object key) {
     return getNode(hash(key), key) != null;
 }
 ```
-有了getNode方法后，containsKey直接调用getNode方法将即可写出<br><br>
+有了 getNode 方法后，containsKey 直接调用 getNode 方法将即可写出
 
 ```
 public V put(K key, V value) {
@@ -359,7 +376,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
     return null;
 }
 ```
-put函数调用了putVal方法，putVal方法参数为hash值、键、值、onlyIfAbsent（该值为true时，如果放入的键已存在，则不会改变相应的值）、evict（if false, the table is in creation mode），返回值为插入键的旧值（若为null则返回null）。<br><br>
+put 函数调用了 putVal 方法，putVal 方法参数为 hash 值、键、值、onlyIfAbsent（该值为 true 时，如果放入的键已存在，则不会改变相应的值）、evict（if false, the table is in creation mode），返回值为插入键的旧值（若为 null 则返回 null）。
 
 ```
 final Node<K,V>[] resize() {
@@ -436,8 +453,9 @@ final Node<K,V>[] resize() {
     return newTab;
 }
 ```
-resize函数。初始化table size或者使之*=2，返回值是Node<K, V>[]  
-当hashMap中的元素个数超过table.length * loadFactor时，就会进行数组扩容。loadFactor的默认值为0.75，也就是说，默认情况下，数组大小为16，那么当hashMap中元素个数超过16 * 0.75 = 12时，数组的大小就会扩展为2 * 16 = 32，即扩大一倍，然后重新计算每个元素在数组中的位置。这个操作非常消耗性能，所以如果我们已经预知hashMap中元素的个数，那么预设元素的个数能够有效的提高hashMap的性能。比如说，当我们有1000个元素可以考虑new HashMap(1000), 但是理论上来讲new HashMap(1024)更合适，不过即使是1000，hashMap也自动会将其设置为1024。但是new HashMap(1024)还不是最合适的，因为1000 > 1024 * 0.75, 也就是说我们new HashMap(2048)才最合适，避免了消耗性能的resize()操作。<br><br>
+resize 函数。初始化 table size 或者使之 *=2，返回值是 Node<K, V>[]
+
+当 hashMap 中的元素个数超过 table.length * loadFactor 时，就会进行数组扩容。loadFactor 的默认值为 0.75，也就是说，默认情况下，数组大小为 16，那么当 hashMap 中元素个数超过 16 * 0.75 = 12 时，数组的大小就会扩展为 2 * 16 = 32，即扩大一倍，然后重新计算每个元素在数组中的位置。这个操作非常消耗性能，所以如果我们已经预知 hashMap 中元素的个数，那么预设元素的个数能够有效的提高 hashMap 的性能。比如说，当我们有 1000 个元素可以考虑 new HashMap(1000), 但是理论上来讲 new HashMap(1024) 更合适，不过即使是 1000，hashMap 也自动会将其设置为1024。但是 new HashMap(1024) 还不是最合适的，因为1000 > 1024 * 0.75, 也就是说我们 new HashMap(2048) 才最合适，避免了消耗性能的 resize() 操作。
 
 ```
 final void treeifyBin(Node<K,V>[] tab, int hash) {
@@ -462,7 +480,7 @@ final void treeifyBin(Node<K,V>[] tab, int hash) {
     }
 }
 ```
-当表长度达到MIN_TREEIFY_CAPACITY时，树化给定的某个index处的链表，否则仅进行扩容操作。<br><br>
+当表长度达到 MIN_TREEIFY_CAPACITY 时，树化给定的某个 index 处的链表，否则仅进行扩容操作。
 
 ```
 public V remove(Object key) {
@@ -512,8 +530,8 @@ final Node<K,V> removeNode(int hash, Object key, Object value,
     return null;
 }
 ```
-remove(Object key)：根据某个键来移除键值对。如果该键值对存在，则移除后返回旧值，否则返回null。  
-该方法调用了removeNode方法，参数为hash、Key、Value（如果matchValue == true则需要匹配，否则忽略）、matchValue、movable（若moveable == false，移除该结点后不移动其他结点），返回值为被移除的键值对（如果存在的话）。<br><br>
+remove(Object key)：根据某个键来移除键值对。如果该键值对存在，则移除后返回旧值，否则返回 null。  
+该方法调用了 removeNode 方法，参数为 hash、Key、Value（如果 matchValue == true 则需要匹配，否则忽略）、matchValue、movable（若 moveable == false，移除该结点后不移动其他结点），返回值为被移除的键值对（如果存在的话）。
 
 ```
 public void clear() {
@@ -526,7 +544,7 @@ public void clear() {
     }
 }
 ```
-clear函数：清空所有键值对，size归零，但table.length似乎不变？<br><br>
+clear 函数：清空所有键值对，size 归零，但 table.length 似乎不变？
 
 ```
 public boolean containsValue(Object value) {
@@ -543,7 +561,7 @@ public boolean containsValue(Object value) {
     return false;
 }
 ```
-containsValue(Object value)：暴力遍历<br><br>
+containsValue(Object value)：暴力遍历
 
 ```
 public Set<K> keySet() {
@@ -581,46 +599,49 @@ final class EntrySet extends AbstractSet<Map.Entry<K,V>> {
     ...
 }
 ```
-用来获取HashMap中键视图、值视图、键值对视图的相关内容<br><br>
+用来获取 HashMap 中键视图、值视图、键值对视图的相关内容
 
 未完待续...
 # 2、关于 HashCode()
 ```
 public native int hashCode();
 ```
-根据这个方法的声明可知，该方法返回一个int类型的数值，并且是本地方法，因此在Object类中并没有给出具体的实现。native关键字说明这个方法并不是用java代码实现的，而是来源于本地库的实现。
+根据这个方法的声明可知，该方法返回一个 int 类型的数值，并且是本地方法，因此在 Object 类中并没有给出具体的实现。native 关键字说明这个方法并不是用 java 代码实现的，而是来源于本地库的实现。
 
-如果两个对象的hashCode()不等，则必定是两个不同的对象;  
-如果两个对象的hashCode()相等，无法判断两个对象是否相同，还需要调用equals方法。
+如果两个对象的 hashCode() 不等，则必定是两个不同的对象;  
+如果两个对象的 hashCode() 相等，无法判断两个对象是否相同，还需要调用 equals 方法。
 
-以下是String中的hashCode()计算方法：
+以下是 String 中的 hashCode() 计算方法：
 ```
 s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1]
 ```
 # 3、关于 final
-final可以用来修类、方法、变量
+final 可以用来修类、方法、变量
 
 ## (1) final 类
-如果希望一个类不允许被继承，并且不允许其他人对这个类有任何改动，可以将这个类设置为final形式。
+如果希望一个类不允许被继承，并且不允许其他人对这个类有任何改动，可以将这个类设置为 final 形式。
 
-final类举例  
-java.lang：Boolean，Character，Short，Integer，Long，String...  
-java.util：Scanner，UUID  
-java.reflect：Array，Field，Parameter
+final 类举例  
+* java.lang：Boolean，Character，Short，Integer，Long，String...
+* java.util：Scanner，UUID
+* java.reflect：Array，Field，Parameter
+
 ## (2) final 方法
-被定义为final的方法不能被重写，可以防止任何子类修改该类的定义与实现方式，同时定义为final的方法执行效率要高于非final方法。值得注意的是，如果一个父类的某个方法被设置为private修饰符，子类将无法访问该方法，自然无法覆盖该方法，所以一个定义为private的方法隐式被指定为final类型，这样无须将一个定义为private的方法再定义为final类型。
+被定义为 final 的方法不能被重写，可以防止任何子类修改该类的定义与实现方式，同时定义为 final 的方法执行效率要高于非 final 方法。值得注意的是，如果一个父类的某个方法被设置为 private 修饰符，子类将无法访问该方法，自然无法覆盖该方法，所以一个定义为 private 的方法隐式被指定为 final 类型，这样无须将一个定义为 private 的方法再定义为 final 类型。
+
 ## (3) final 变量
-final关键字可用于变量声明，一旦该变量被设定，就不可以再改变该变量的值。通常，由final定义的变量为常量。在Java中定义全局常量，通常使用public static final修饰，这样的常量只能在定义是被赋值，被定义为final的常量定义时需要使用大写字母命名，并且中间使用下划线进行连接。
+final 关键字可用于变量声明，一旦该变量被设定，就不可以再改变该变量的值。通常，由 final 定义的变量为常量。在 Java 中定义全局常量，通常使用 public static final 修饰，这样的常量只能在定义是被赋值，被定义为 final 的常量定义时需要使用大写字母命名，并且中间使用下划线进行连接。
 ```
 public static final double PI_VALUE = 3.14;
 ```
+
 # 4、String、StringBuilder、StringBuffer 异同
 ## (1) String
-String的值是不可变的，这就导致每次对String的操作（如str += "Hello"）都会生成新的String对象，这样不仅效率低下，而且大量浪费有限的内存空间。
+String 的值是不可变的，这就导致每次对 String 的操作（如 str += "Hello"）都会生成新的 String 对象，这样不仅效率低下，而且大量浪费有限的内存空间。
 ## (2) StringBuilder
-可变字符序列，继承自AbstractStringBuilder，线程不安全，执行速度快
+可变字符序列，继承自 AbstractStringBuilder，线程不安全，执行速度快
 ## (3) StringBuffer
-可变字符序列，继承自AbstractStringBuilder，线程安全，执行速度慢
+可变字符序列，继承自 AbstractStringBuilder，线程安全，执行速度慢
 
 # 5、java 内存管理（栈、堆、静态域、常量池...)
 栈：存放基本数据类型和对象的引用，以及成员方法中的局部变量。栈的存取速度比堆块，仅次于寄存器。
@@ -631,7 +652,7 @@ String的值是不可变的，这就导致每次对String的操作（如str += "
 
 常量池：专门用于存储、管理在编译时就可以确定的保存在.class文件中的一些数据。
 ```
-int a = 1; // 在编译时就可以确定a的值为1，1存放在常量池中，栈中存放是常量池中1的地址
+int a = 1; // 在编译时就可以确定 a 的值为 1，1 存放在常量池中，栈中存放是常量池中 1 的地址
 String str1 = "hello"; // 编译时能确定，"hello"存储在常量池中，栈中存的是对应的地址
 String str2 = new String("hello java"); // 这是一个对象，存储在堆中，"hello java"并不会放在常量池中
 ```
@@ -642,7 +663,7 @@ String str2 = new String("hello java"); // 这是一个对象，存储在堆中�
 
 如果一个类包含抽象方法，那么该类必须是抽象类。一个类只能继承一个抽象类，却可以实现多个接口。任何子类必须重写父类的抽象方法，或者声明自身为抽象类（若如此做，则从最初的父类到最终的子类都不能用来实例化对象）。
 
-构造方法、static方法不能被声明为抽象方法，final类不能被声明为抽象类。
+构造方法、static 方法不能被声明为抽象方法，final 类不能被声明为抽象类。
 
 # 7、java.util.Collection
 ```
@@ -663,8 +684,8 @@ public interface Collection<E> extends Iterable<E> {
     ...
 }    
 ```
-Collection是接口，继承了Iterable接口  
-Collection属于单值类型集合，重点子接口有List、Queue、Set。\<E>是集合内元素的类型。
+Collection 是接口，继承了 Iterable 接口  
+Collection 属于单值类型集合，重点子接口有 List、Queue、Set。\<E> 是集合内元素的类型。
 
 # 8、java.util.Collections
 ```
@@ -674,7 +695,7 @@ public class Collections {
     ...
 }
 ```
-此类完全由在Collection上进行操作或返回Collection的静态方法组成。
+此类完全由在 Collection 上进行操作或返回 Collection 的静态方法组成。
 
 # 9、java.util.HashSet 源码分析
 ```
@@ -691,7 +712,7 @@ public class HashSet<E>
     ...
 }
 ```
-HashSet底层由HashMap实现，值存放于HashMap的key上，value统一为PRESENT，即所有的value都是一个统一的Object对象。
+HashSet 底层由 HashMap 实现，值存放于 HashMap 的 key 上，value 统一为 PRESENT，即所有的 value 都是一个统一的 Object 对象。
 
 # 10、java.util.ArrayList 源码分析
 ```
@@ -709,9 +730,10 @@ public class ArrayList<E> extends AbstractList<E>
     ...
 }
 ```
-ArrayList实现了List、RandomAccess、Cloneable等实用接口  
-ArrayList只能存放对象，不能存放基本类型  
-成员变量中的elementData是存储ArrayList中元素的数组对象，ArrayList的capacity就是这个数组的buffer。<br><br>
+ArrayList 实现了 List、RandomAccess、Cloneable 等实用接口
+
+ArrayList 只能存放对象，不能存放基本类型  
+成员变量中的 elementData 是存储 ArrayList 中元素的数组对象，ArrayList 的 capacity 就是这个数组的buffer。
 
 ```
 public ArrayList(int initialCapacity) {
@@ -740,9 +762,9 @@ public ArrayList(Collection<? extends E> c) {
     }
 }
 ```
-给定initialCapacity的构造方法  
-默认capacity的构造方法  
-以某个Collection对象为参数的构造方法<br><br>
+给定 initialCapacity 的构造方法  
+默认 capacity 的构造方法  
+以某个 Collection 对象为参数的构造方法
 
 ```
 public void trimToSize() {
@@ -754,14 +776,14 @@ public void trimToSize() {
     }
 }
 ```
-将该ArrayList的capacity修剪至当前大小。实际应用可以用此方法来减小内存占用。  
-Arrays.copyOf是对elementData中元素的拷贝，length变为实际的size。<br><br>
+将该 ArrayList 的 capacity 修剪至当前大小。实际应用可以用此方法来减小内存占用。  
+Arrays.copyOf 是对 elementData 中元素的拷贝，length 变为实际的 size。
 
 ```
 public void ensureCapacity(int minCapacity) {
     // 扩容需要满足的条件：
-    // (1) 当前length不满足minCapacity的需求
-    // (2) (当前数组不为默认size == 0的空数组) 或者 (minCapacity > 10)
+    // (1) 当前 length 不满足 minCapacity 的需求
+    // (2) (当前数组不为默认 size == 0 的空数组) 或者 (minCapacity > 10)
     if (minCapacity > elementData.length
         && !(elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA
                 && minCapacity <= DEFAULT_CAPACITY)) {
@@ -773,10 +795,10 @@ public void ensureCapacity(int minCapacity) {
 private Object[] grow(int minCapacity) {
     int oldCapacity = elementData.length;
     if (oldCapacity > 0 || elementData != DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
-        // 根据ArraysSupport中的newLength方法，会取两个growth较大者作为growth
-        // 当minCapacity较大时，为了满足需求，容量增加至minCapacity
-        // 当1.5 * oldCapacity较大时，则增加至1.5 * oldCapacity，既不太浪费空间，又避免了频繁的扩容
-        // 当然，需要满足容量不溢出的前提（参考ArraysSupport中的MAX_ARRAY_LENGTH）
+        // 根据 ArraysSupport 中的 newLength 方法，会取两个 growth 较大者作为 growth
+        // 当 minCapacity 较大时，为了满足需求，容量增加至 minCapacity
+        // 当 1.5 * oldCapacity 较大时，则增加至1.5 * oldCapacity，既不太浪费空间，又避免了频繁的扩容
+        // 当然，需要满足容量不溢出的前提（参考 ArraysSupport 中的 MAX_ARRAY_LENGTH）
         int newCapacity = ArraysSupport.newLength(oldCapacity,
                 minCapacity - oldCapacity, /* minimum growth */
                 oldCapacity >> 1           /* preferred growth */);
@@ -790,7 +812,7 @@ private Object[] grow() {
     return grow(size + 1);
 }
 ```
-上述方法中仅ensureCapacity(int minCapacity)是public的，作用是增加ArrayLust的capacity，使其至少能容纳minCapacity个元素。<br><br>
+上述方法中仅 ensureCapacity(int minCapacity) 是 public 的，作用是增加 ArrayLust 的 capacity，使其至少能容纳 minCapacity 个元素。
 
 ```
 public int size() {
@@ -825,7 +847,7 @@ int indexOfRange(Object o, int start, int end) {
 
 ...
 ```
-这几个没什么可说的<br><br>
+这几个没什么可说的
 
 ```
 @SuppressWarnings("unchecked")
@@ -843,7 +865,7 @@ public E get(int index) {
     return elementData(index);
 }
 ```
-get方法返回值中可以用圆括号取出对象数组中的对象是因为有一个和elementData变量的同名函数？这么做的目的是什么？为什么get函数不直接用方括号然后转类型呢？<br><br>
+get 方法返回值中可以用圆括号取出对象数组中的对象是因为有一个和 elementData 变量的同名函数？这么做的目的是什么？为什么get函数不直接用方括号然后转类型呢？
 
 ```
 private void add(E e, Object[] elementData, int s) {
@@ -859,11 +881,11 @@ public boolean add(E e) {
     return true;
 }
 ```
-可以看到只有当elementData已满，无法再加入下一个元素时，才会进行grow()操作。无参的grow()操作使容量变为原来的1.5倍。<br><br>
+可以看到只有当 elementData 已满，无法再加入下一个元素时，才会进行 grow() 操作。无参的 grow() 操作使容量变为原来的 1.5 倍。
 
 未完待续...
 
-# 11、java.util.concurrent.ConcurrentHashMap源码分析
+# 11、java.util.concurrent.ConcurrentHashMap
 ```
 public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
     implements ConcurrentMap<K,V>, Serializable {
@@ -872,7 +894,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
 }
 ```
 concurrent(adj. 并发的，一致的)  
-ConcurrentHashMap是Java中的一个线程安全且高效的HashMap实现。平时涉及高并发如果要用map结构，那第一时间想到的就是它。<br><br>
+ConcurrentHashMap 是 Java 中的一个线程安全且高效的 HashMap 实现。平时涉及高并发如果要用 map 结构，那第一时间想到的就是它。
 
 ```
 static final int HASH_BITS = 0x7fffffff; // usable bits of normal node hash
@@ -881,7 +903,7 @@ static final int spread(int h) {
     return (h ^ (h >>> 16)) & HASH_BITS;
 }
 ```
-ConcurrentHashMap使用hashCode() ^ (hashCode() >>> 16) & 0x7fffffff来计算hash值。相较于HashMap，多与上了一个较大的整数，该整数低位连续31个1，仅最高位为0。这么操作的目的一说是ConcurrentHashMap的MAXIMUM_CAPACITY = 1 << 30，在进行hash & (table.length - 1) 时最高位示用不到的；另一说是为了防止与一些预留的hash值产生冲突，如MOVED(-1)、TREEBIN(-2)、RESERVED(-3)。<br><br>
+ConcurrentHashMap 使用 hashCode() ^ (hashCode() >>> 16) & 0x7fffffff 来计算 hash 值。相较于 HashMap，多与上了一个较大的整数，该整数低位连续 31 个 1，仅最高位为 0。这么操作的目的一说是 ConcurrentHashMap 的 MAXIMUM_CAPACITY = 1 << 30，在进行 hash & (table.length - 1) 时最高位示用不到的；另一说是为了防止与一些预留的 hash 值产生冲突，如 MOVED(-1)、TREEBIN(-2)、RESERVED(-3)。
 
 ```
 // sizeCtl: Table initialization and resizing control
@@ -898,10 +920,10 @@ private static final long SIZECTL;
 private final Node<K,V>[] initTable() {
     Node<K,V>[] tab; int sc;
     while ((tab = table) == null || tab.length == 0) {
-        // 如果sizeCtl == -1，说明已有其他线程在执行初始化操作，则让出CPU时间片
+        // 如果 sizeCtl == -1，说明已有其他线程在执行初始化操作，则让出 CPU 时间片
         if ((sc = sizeCtl) < 0)
             Thread.yield(); // lost initialization race; just spin
-        // 正在进行初始化的线程调用U.compareAndSetInt方法将sizeCtl改为-1即正在初始化的状态
+        // 正在进行初始化的线程调用 U.compareAndSetInt 方法将 sizeCtl 改为 -1 即正在初始化的状态
         else if (U.compareAndSetInt(this, SIZECTL, sc, -1)) {
             try {
                 if ((tab = table) == null || tab.length == 0) {
@@ -913,7 +935,7 @@ private final Node<K,V>[] initTable() {
                     sc = n - (n >>> 2);
                 }
             } finally {
-                // 初始化完毕后，sizeCtl被修改为下一次要被resize的元素个数
+                // 初始化完毕后，sizeCtl 被修改为下一次要被 resize 的元素个数
                 sizeCtl = sc;
             }
             break;
@@ -922,7 +944,7 @@ private final Node<K,V>[] initTable() {
     return tab;
 }
 ```
-initTable()函数，返回一个键值对数组对象<br><br>
+initTable() 函数，返回一个键值对数组对象
 
 ```
 final Node<K,V>[] helpTransfer(Node<K,V>[] tab, Node<K,V> f) {
@@ -946,7 +968,7 @@ final Node<K,V>[] helpTransfer(Node<K,V>[] tab, Node<K,V> f) {
     return table;
 }
 ```
-如果已经有一个线程在执行resize()操作，则本线程需要执行helpTransfer。参数是table和对应index的键值对。<br><br>
+如果已经有一个线程在执行 resize() 操作，则本线程需要执行 helpTransfer。参数是 table 和对应 index 的键值对。
 
 ```
 public V put(K key, V value) {
@@ -954,17 +976,17 @@ public V put(K key, V value) {
 }
 
 final V putVal(K key, V value, boolean onlyIfAbsent) {
-    // 与HashMap不同，ConcurrentHashMap不能存储空键值对，会产生NullPointerException
+    // 与 HashMap 不同，ConcurrentHashMap 不能存储空键值对，会产生 NullPointerException
     if (key == null || value == null) throw new NullPointerException();
-    // 计算hash值
+    // 计算 hash 值
     int hash = spread(key.hashCode());
     int binCount = 0;
     for (Node<K,V>[] tab = table;;) {
         Node<K,V> f; int n, i, fh; K fk; V fv;
-        // 如果table为null或tab.length为0，则初始化
+        // 如果 table 为 null 或 tab.length 为 0，则初始化
         if (tab == null || (n = tab.length) == 0)
             tab = initTable();
-        // 如果目标index位置为null，则直接使用CAS将键值对插入
+        // 如果目标 index 位置为 null，则直接使用 CAS 将键值对插入
         else if ((f = tabAt(tab, i = (n - 1) & hash)) == null) {
             if (casTabAt(tab, i, null, new Node<K,V>(hash, key, value)))
                 break;                   // no lock when adding to empty bin
@@ -979,7 +1001,7 @@ final V putVal(K key, V value, boolean onlyIfAbsent) {
             return fv;
         else {
             V oldVal = null;
-            // 用synchronized (f)锁住链表头（或红黑树头），在判断是链表还是红黑是来执行后续的操作
+            // 用 synchronized(f) 锁住链表头（或红黑树头），在判断是链表还是红黑是来执行后续的操作
             synchronized (f) {
                 if (tabAt(tab, i) == f) {
                     if (fh >= 0) {
@@ -1028,7 +1050,7 @@ final V putVal(K key, V value, boolean onlyIfAbsent) {
     return null;
 }
 ```
-put方法是我们最关心的方法之一。和HashMap相同，ConcurrentHashMap的put方法也是需要调用一个自己的putVal方法。  
+put 方法是我们最关心的方法之一。和 HashMap 相同，ConcurrentHashMap 的 put 方法也是需要调用一个自己的 putVal 方法。  
 
 未完待续...
 
@@ -1045,7 +1067,7 @@ Java提供提供的异常体系可能不会完全包含我们遇见的错误，�
 # 13、java 进程和线程
 进程：程序的一次执行过程，操作系统进行资源分配和调度的最小单位。
 
-线程：是进程内的一个可调度实体，CPU调度的基本单位
+线程：是进程内的一个可调度实体，CPU 调度的基本单位
 
 # 14、java.lang.Thread
 ```
@@ -1053,31 +1075,31 @@ public class Thread implements Runnable {
     ...
 }
 ```
-位于java.lang包下的Thread类是非常重要的线程类，它实现了Runnable接口。
+位于 java.lang 包下的 Thread 类是非常重要的线程类，它实现了 Runnable 接口。
 
-线程包含以下几种状态：创建(new)、就绪(runnable)、运行(running)、阻塞(blocked)、time waiting、waiting、消亡（dead），在有些教程上将blocked、waiting、time waiting统称为阻塞(blocked)状态，这个也是可以的，只不过这里将线程的状态和java中的方法调用联系起来，所以将waiting和time waiting两个状态分离出来。如下图所示：
+线程包含以下几种状态：创建(new)、就绪(runnable)、运行(running)、阻塞(blocked)、time waiting、waiting、消亡（dead），在有些教程上将 blocked、waiting、time waiting 统称为阻塞(blocked)状态，这个也是可以的，只不过这里将线程的状态和 java 中的方法调用联系起来，所以将 waiting 和 time waiting 两个状态分离出来。如下图所示：
 ![avatar](./markdown-pics/线程状态图.jpg)
-<br><br>
+
 ```
-// 静态方法，返回当前正在执行的Thread
+// 静态方法，返回当前正在执行的 Thread
 public static native Thread currentThread();
 
 // 静态方法，让当前正在执行的线程暂停，但不会阻塞该线程，它只是将该线程转入到就绪状态。
 public static native void yield();
 
-// 静态方法，让当前线程睡眠，CPU去执行其他的任务。
+// 静态方法，让当前线程睡眠，CPU 去执行其他的任务。
 // 需要注意的是，sleep方法不会释放锁
 public static native void sleep(long millis) throws InterruptedException;
 
 // 静态方法，....
 public static void onSpinWait() {}
 
-// Thread未实现cloneable接口
+// Thread 未实现 cloneable 接口
 protected Object clone() throws CloneNotSupportedException {
     throw new CloneNotSupportedException();
 }
 
-// start方法，系统会为其分配需要的资源。
+// start 方法，系统会为其分配需要的资源。
 public synchronized void start() {
     // A zero status value corresponds to state "NEW".
     if (threadStatus != 0)
@@ -1104,7 +1126,7 @@ public synchronized void start() {
 private native void start0();
 ...
 ```
-Thread的一些常用方法
+Thread 的一些常用方法
 
 未完待续...
 
