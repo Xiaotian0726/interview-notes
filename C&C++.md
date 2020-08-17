@@ -16,6 +16,7 @@
   - [new/delete](#newdelete)
   - [两者的区别](#两者的区别)
 - [5、C++ 中的多态与（纯）虚函数](#5c-中的多态与纯虚函数)
+- [6、GCC 编译优化选项](#6gcc-编译优化选项)
 # 0、C++ 中传指针与传引用的比较
 当把引用作为参数传递的过程中，形式参数会作为局部变量在栈中开辟内存空间，存放的是实参变量的地址，对形参的任何操作都会被处理为间接寻址，即通过存放的这个地址去访问主调函数的实参变量。
 
@@ -171,3 +172,69 @@ C++ 中的多态以虚函数来实现。在派生类中重写虚函数，运行�
 在上图中可以看到，子类 `Sensei` 和父类 `Actress` 的对象内存中都有一个指向虚函数表的指针，两个对象的虚函数表连在一起。其中 `Actress::desc()` 和 `Actress::name()` 都是虚函数，但是子类 `Sensei` 只重写了前者。因此在调用 `name()` 函数时使用的仍然是父类的
 
 纯虚函数只有声明，没有定义，并且需要在末尾加上 `= 0`。含有纯虚函数的类称为抽象类。
+
+# 6、GCC 编译优化选项
+GCC 提供了大量编译优化选项，对编译时间、目标文件长度、执行效率三个维度进行不同程度的取舍
+
+GCC 常用编译选项：
+* -c：只编译并生成目标文件
+* -E：只运行 C 预编译器
+* -g：生成调试信息
+* -Os：相当于 -O2.5
+* -o FILE：生成指定的输出文件，用于生成可执行文件时
+* -O0：无优化
+* -O(-O1)：在不影响编译速度的前提下，尽量采用一些优化算法降低代码大小和可执行代码的运行速度，并开启如下的优化选项：
+  ```
+  -fauto-inc-dec 
+  -fbranch-count-reg 
+  -fcombine-stack-adjustments 
+  -fcompare-elim 
+  -fcprop-registers 
+  -fdce 
+  -fdefer-pop 
+  -fdelayed-branch 
+  -fdse 
+  -fforward-propagate 
+  -fguess-branch-probability 
+  -fif-conversion2 
+  -fif-conversion 
+  -finline-functions-called-once 
+  -fipa-pure-const 
+  -fipa-profile 
+  -fipa-reference 
+  -fmerge-constants 
+  -fmove-loop-invariants 
+  -freorder-blocks 
+  -fshrink-wrap 
+  -fshrink-wrap-separate 
+  -fsplit-wide-types 
+  -fssa-backprop 
+  -fssa-phiopt 
+  -fstore-merging 
+  -ftree-bit-ccp 
+  -ftree-ccp 
+  -ftree-ch 
+  -ftree-coalesce-vars 
+  -ftree-copy-prop 
+  -ftree-dce 
+  -ftree-dominator-opts 
+  -ftree-dse 
+  -ftree-forwprop 
+  -ftree-fre 
+  -ftree-phiprop 
+  -ftree-sink 
+  -ftree-slsr 
+  -ftree-sra 
+  -ftree-pta 
+  -ftree-ter 
+  -funit-at-a-time
+  ```
+* -O2：牺牲部分编译速度，除了执行-O1所执行的所有优化之外，还会采用几乎所有的目标配置支持的优化算法，用以提高目标代码的运行速度，同样会开启大量优化选项
+* -O3：除了执行 -O2 所有的优化选项之外，一般都是采取很多向量化算法，提高代码的并行执行程度，利用现代 CPU 中的流水线， Cache 等，并开启一些优化选项
+* -Os：这个优化标识和 -O3 有异曲同工之妙，当然两者的目标不一样，-O3 的目标是宁愿增加目标代码的大小，也要拼命的提高运行速度，但是这个选项是在 -O2 的基础之上，尽量的降低目标代码的大小，这对于存储容量很小的设备来说非常重要。为了降低目标代码大小，会禁用下列优化选项，一般就是压缩内存中的对齐空白(alignment padding)
+* -Ofast：该选项将不会严格遵循语言标准，除了启用所有的 -O3 优化选项之外，也会针对某些语言启用部分优化。如：-ffast-math ，对于 Fortran 语言，还会启用下列选项：
+  ```
+  -fno-protect-parens 
+  -fstack-arrays
+  ```
+* -Og：该标识会精心挑选部分与 -g 选项不冲突的优化选项，当然就能提供合理的优化水平，同时产生较好的可调试信息和对语言标准的遵循程度
