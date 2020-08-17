@@ -58,6 +58,7 @@
   - [多态的三个必要条件](#多态的三个必要条件)
   - [实现方式](#实现方式)
 - [23、Java 反射](#23java-反射)
+- [24、Java Object 类](#24java-object-类)
 
 # 0、JVM Garbage Collection
 ## 垃圾判断算法
@@ -638,6 +639,40 @@ public static final double PI_VALUE = 3.14;
 # 4、String、StringBuilder、StringBuffer 异同
 ## (1) String
 String 的值是不可变的，这就导致每次对 String 的操作（如 str += "Hello"）都会生成新的 String 对象，这样不仅效率低下，而且大量浪费有限的内存空间。
+
+String 用 char[] 来存放字符串：
+```
+public final class String
+    implements java.io.Serializable, Comparable<String>, CharSequence {
+    /** The value is used for character storage. */
+    private final char value[];
+    ...
+```
+可以参考 String 的 equals 方法：
+```
+    public boolean equals(Object anObject) {
+        if (this == anObject) {
+            return true;
+        }
+        if (anObject instanceof String) {
+            String anotherString = (String)anObject;
+            int n = value.length;
+            if (n == anotherString.value.length) {
+                char v1[] = value;
+                char v2[] = anotherString.value;
+                int i = 0;
+                while (n-- != 0) {
+                    if (v1[i] != v2[i])
+                        return false;
+                    i++;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+```
+
 ## (2) StringBuilder
 可变字符序列，继承自 AbstractStringBuilder，线程不安全，执行速度快
 ## (3) StringBuffer
@@ -1470,3 +1505,43 @@ public final class Class<T> implements java.io.Serializable,
 下面是Class、Field、Method、Constructor 四个对象的关系：
 
 ![](markdown-pics/Class对象.jpg)
+
+# 24、Java Object 类
+Object 类是 Java 中所有类的始祖。可以用 Object 类型的变量引用任何类型的对象，如：
+```
+Object obj = new Employee(“Harry Hacker”, 35000);
+```
+Object 类中的 equals 方法检测一个对象是否等于另外一个对象。Java 语言规范要求equals 方法具有下面的特性：
+* 对于任何非空引用 x，x.equal(x) 应该返回 true
+* 对于任何引用 x、y，x.equals(y) 和 y.equals(x) 返回值应该相同
+* 传递性：...
+* 一致性：如果 x 和 y 引用的对象没有发生变化，反复调用 x.equals(y) 应该得到相同的结果
+* 对于任何非空引用 x，x.equals(null) 应该返回 false
+
+下面给出编写一个完美的 equals 方法的建议：
+* 检测 this 与 otherObject 是否引用同一个对象：
+  ```
+  if (this == otherObject) return true;
+  ```
+* 检测 otherObject 是否为 null：
+  ```
+  if (otherObject == null) return false;
+  ```
+* 检测两者是否属于同一个类。
+  * 如果 equals 的语义在每个子类中都有所改变，则：
+    ```
+    if (getClass() != otherObject.getClass()) return false;
+    ```
+  * 如果所有的子类都拥有统一的语义，则：
+    ```
+    if (!(otherObject instanceof ClassName)) return false;
+    ```
+* 将 otherObject 转换为相应的类型变量：
+  ```
+  ClassName other = (ClassName) otherObject;
+  ```
+* 对所有需要比较的域进行比较，用 == 比较基本类型，用 equals 比较对象域
+
+散列码（hash code）是由对象导出的一个整数值。散列码是没有规律的，如果 x 和 y 是两个不同的对象，x.hashCode() 与 y.hashCode() 基本上不会相同
+
+在 Object 中还有一个重要的 toString 方法。只要对象和一个字符串通过操作符 "+" 连接起来，Java 编译就会自动调用 toString 方法
