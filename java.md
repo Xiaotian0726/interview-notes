@@ -1502,7 +1502,7 @@ public final class Class<T> implements java.io.Serializable,
 * 创建实例
 * 反射调用方法
 
-下面是Class、Field、Method、Constructor 四个对象的关系：
+下面是 Class、Field、Method、Constructor 四个对象的关系：
 
 ![](markdown-pics/Class对象.jpg)
 
