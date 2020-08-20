@@ -27,6 +27,7 @@
   - [ANR 产生的原因](#anr-产生的原因)
   - [ANR 的类型](#anr-的类型)
   - [如何避免 ANR](#如何避免-anr)
+- [9、](#9)
 
 # 0、Android 生成 APK 的过程
 (1) 打包 res 资源文件，生成 R.java 文件  
@@ -70,12 +71,12 @@ public abstract @PixelFormat.Opacity int getOpacity();
 可以看到 draw 方法的参数中有一个 canvas 对象。可以理解为，View 通过 setBackground 方法为自己设置了一个 drawable 对象后，而 drawable 又有一个 draw 方法，那么 View 绘制自己的背景时，直接调用 drawable 对象的的 draw 方法，这个 draw 方法需要一个 canvas 对象，这里可直接把 View 的 Canvas 对象传递过去，那么 Drawable 就可以成功的把自己的绘制内容应用到 View 之上。
 
 ## Drawable 的常用子类
-ColorDrawable：使用指定的颜色来填充画布。  
-GradientDrawable：表示一个渐变区域，可以实现线性渐变、发散渐变和平铺渐变等渐变效果。  
-BitmapDrawable：对 bitmap 的一种包装，可以设置它包装的 bitmap 在 BitmapDrawable 区域内的绘制方式，如平铺、拉伸填充或者保持图片原始尺寸。  
-AnimationDrawable：实现 Android 帧动画，动画效果需要在 java 代码中开启。  
-StateListDrawable：对应于 xml 中的 selector，是开发中经常使用的 Drawable 子类，比如一个按钮正常状态和按下时候不同的样式就是用 StateListDrawable 实现的。  
-InsetDrawable：包含一个 Drawble 实例，通过设置 inset 属性值来定义插入的 Drawable 实例与自身四边的距离。当我们需要设置一个视觉尺寸小于 View 尺寸的背景，InsetDrawable 就能派上用场了。
+* ColorDrawable：使用指定的颜色来填充画布。  
+* GradientDrawable：表示一个渐变区域，可以实现线性渐变、发散渐变和平铺渐变等渐变效果。  
+*BitmapDrawable：对 bitmap 的一种包装，可以设置它包装的 bitmap 在 BitmapDrawable 区域内的绘制方式，如平铺、拉伸填充或者保持图片原始尺寸。  
+* AnimationDrawable：实现 Android 帧动画，动画效果需要在 java 代码中开启。  
+* StateListDrawable：对应于 xml 中的 selector，是开发中经常使用的 Drawable 子类，比如一个按钮正常状态和按下时候不同的样式就是用 StateListDrawable 实现的。  
+* InsetDrawable：包含一个 Drawble 实例，通过设置 inset 属性值来定义插入的 Drawable 实例与自身四边的距离。当我们需要设置一个视觉尺寸小于 View 尺寸的背景，InsetDrawable 就能派上用场了。
 
 # 2、Android 四大组件
 ## Activity
@@ -133,13 +134,13 @@ Android 内置了很多系统级别的广播，我们可以在应用程序中通
 # 6、数据持久化技术
 Android 系统中主要提供三种方式用于简单地实现数据持久化功能：
 * 文件存储
-* SharedPreferences存储
+* SharedPreferences 存储
 * 数据库存储
 
 这三种方式比直接把数据存到手机的SD卡中会更简单、安全。
 
 ## 文件存储
-是Android中最基本的一种数据存储方式，不对存储的内容进行任何的格式化处理，所有的数据都是原封不动地保存到文件当中
+是 Android 中最基本的一种数据存储方式，不对存储的内容进行任何的格式化处理，所有的数据都是原封不动地保存到文件当中
 
 ## SharedPreferences
 SharedPreferences 是使用键值对的方式来存储数据的。Android 中主要提供三种方法来得到 SharedPreferences 对象：
@@ -148,7 +149,7 @@ SharedPreferences 是使用键值对的方式来存储数据的。Android 中主
 * PreferenceManager 中的 getDefaultSharedPreferences 方法
 
 ## SQLite 数据库存储
-是 Android 系统内置的轻量级关系型数据库，占用资源很少，特别适合在移动设备上使用。它不仅支持标准的SQL语法，还遵循数据库的 ACID 事务。
+是 Android 系统内置的轻量级关系型数据库，占用资源很少，特别适合在移动设备上使用。它不仅支持标准的 SQL 语法，还遵循数据库的 ACID 事务。
 
 Android 提供了 SQLiteOpenHelper 抽象类来让我们管理数据库。我们需要实现它的两个抽象方法，分别是 onCreate() 和 onUpgrade()，然后分别在这两个方法中去实现创建、升级数据库的逻辑。
 
@@ -230,3 +231,5 @@ ANR 的全称是 Application Not Responding（应用程序无响应）
 * UI 线程尽量只做跟 UI 相关的工作
 * 耗时的操作，如 I/O、网络连接，放到单独的线程处理
 * 尽量用 Handler 处理 UI 线程和非 UI 线程之间的交互
+
+# 9、
