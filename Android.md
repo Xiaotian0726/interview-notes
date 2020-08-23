@@ -30,13 +30,13 @@
 - [9、](#9)
 
 # 0、Android 生成 APK 的过程
-(1) 打包 res 资源文件，生成 R.java 文件  
-(2) 处理 AIDL 文件（Android Interface Definition Language），生成对应 java 文件  
-(3) 使用 javac 命令编译工程源代码和上面的 java 文件，生成 class 文件  
-(4) 将 class 文件和第三方 jar 包打成 classes.dex 文件  
-(5) 打包生成 apk  
-(6) 通过 jarsigner 对 apk 文件进行签名  
-(7) 利用 zipalign 工具对 apk 进行字节对齐优化操作
+* (1) 打包 res 资源文件，生成 R.java 文件
+* (2) 处理 AIDL 文件（Android Interface Definition Language），生成对应 java 文件
+* (3) 使用 javac 命令编译工程源代码和上面的 java 文件，生成 .class 文件
+* (4) 将 .class 文件和第三方 jar 包打成 classes.dex 文件
+* (5) 打包生成 apk
+* (6) 通过 jarsigner 对 apk 文件进行签名
+* (7) 利用 zipalign 工具对 apk 进行字节对齐优化操作
 
 # 1、android.graphics.drawable.Drawable
 ## 官方解释

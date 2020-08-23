@@ -77,7 +77,7 @@ GC Roots 可以理解为堆外向堆内的引用，如：
 * 方法区中常量引用的对象
 * 本地方法栈中 JNI（即一般说的 Native 方法）引用的对象
 
-缺点:多线程下存在垃圾漏报和误报
+缺点：多线程下存在垃圾漏报和误报的问题
 
 解决办法：stop-the-world。当 JVM 收到 stop-the-world 请求的时候，会等待所有的线程到达安全点，再让 stop-the-world 线程独占，清理垃圾。
 
@@ -663,33 +663,33 @@ public final class String
     private final char value[];
     ...
 ```
-这里需要注意，value[] 是用 fianl 修饰的，虽然 value 这个引用地址不可变（即不能去引用其他 char数组），但这个数组的内容是可以变的。为了防止其内容被修改，源码作者不仅将该类设为了 final 类，而且在所有方法里都防止了用户去动 value[] 的数据。
+这里需要注意，value[] 是用 fianl 修饰的，虽然 value 这个引用地址不可变（即不能去引用其他 char数组），但这个数组的内容是可以变的。为了防止其内容被修改，源码作者不仅将该类设为了 final 类，而且在所有 public 方法里都防止了用户去动 value[] 的数据。
 
 而正因为 String 是不可变对象，不能被写，所以是线程安全的。同时一个字符串常量存放在常量池中，节省了内存空间的使用率
 
 String 的 equals 方法：
 ```
-    public boolean equals(Object anObject) {
-        if (this == anObject) {
+public boolean equals(Object anObject) {
+    if (this == anObject) {
+        return true;
+    }
+    if (anObject instanceof String) {
+        String anotherString = (String)anObject;
+        int n = value.length;
+        if (n == anotherString.value.length) {
+            char v1[] = value;
+            char v2[] = anotherString.value;
+            int i = 0;
+            while (n-- != 0) {
+                if (v1[i] != v2[i])
+                    return false;
+                i++;
+            }
             return true;
         }
-        if (anObject instanceof String) {
-            String anotherString = (String)anObject;
-            int n = value.length;
-            if (n == anotherString.value.length) {
-                char v1[] = value;
-                char v2[] = anotherString.value;
-                int i = 0;
-                while (n-- != 0) {
-                    if (v1[i] != v2[i])
-                        return false;
-                    i++;
-                }
-                return true;
-            }
-        }
-        return false;
     }
+    return false;
+}
 ```
 
 ## (2) StringBuilder
@@ -740,7 +740,7 @@ public interface Collection<E> extends Iterable<E> {
 }    
 ```
 Collection 是接口，继承了 Iterable 接口  
-Collection 属于单值类型集合，重点子接口有 List、Queue、Set。\<E> 是集合内元素的类型。
+Collection 是集合的顶级接口，属于单值类型集合，重点子接口有 List、Queue、Set。\<E> 是集合内元素的类型。
 
 # 8、java.util.Collections
 ```
@@ -750,7 +750,62 @@ public class Collections {
     ...
 }
 ```
-此类完全由在 Collection 上进行操作或返回 Collection 的静态方法组成。
+Collection 则是集合类的一个工具类/帮助类，提供了一系列静态方法，如对集合进行排序、搜索等
+
+sort 方法：
+```
+public static <T extends Comparable<? super T>> void sort(List<T> list) {
+    list.sort(null);
+}
+```
+sort 方法调用了参数对象 list 的 sort 方法，要求对象是一个 List\<T\> 类型的对象，其中 T 必须实现了 Comparable 接口。继续深入源码，可以发现 List\<T\> 的 sort 方法调用了 Arrays 的 sort 方法：
+```
+default void sort(Comparator<? super E> c) {
+    Object[] a = this.toArray();
+    Arrays.sort(a, (Comparator) c);
+    ListIterator<E> i = this.listIterator();
+    for (Object e : a) {
+        i.next();
+        i.set((E) e);
+    }
+}
+```
+shuffle 方法（洗牌方法）：
+```
+public static void shuffle(List<?> list) {
+    Random rnd = r;
+    if (rnd == null)
+        r = rnd = new Random(); // harmless race.
+    shuffle(list, rnd);
+}
+
+public static void shuffle(List<?> list, Random rnd) {
+    int size = list.size();
+    if (size < SHUFFLE_THRESHOLD || list instanceof RandomAccess) {
+        for (int i=size; i>1; i--)
+            swap(list, i-1, rnd.nextInt(i));
+    } else {
+        Object[] arr = list.toArray();
+
+        // Shuffle array
+        for (int i=size; i>1; i--)
+            swap(arr, i-1, rnd.nextInt(i));
+
+        // Dump array back into list
+        // instead of using a raw type here, it's possible to capture
+        // the wildcard but it will require a call to a supplementary
+        // private method
+        ListIterator it = list.listIterator();
+        for (int i=0; i<arr.length; i++) {
+            it.next();
+            it.set(arr[i]);
+        }
+    }
+}
+```
+可以看到其使用的算法是大名鼎鼎的 $Knuth-Shuffle$ 洗牌算法
+
+未完...
 
 # 9、java.util.HashSet 源码分析
 ```
@@ -788,7 +843,7 @@ public class ArrayList<E> extends AbstractList<E>
 ArrayList 实现了 List、RandomAccess、Cloneable 等实用接口
 
 ArrayList 只能存放对象，不能存放基本类型  
-成员变量中的 elementData 是存储 ArrayList 中元素的数组对象，ArrayList 的 capacity 就是这个数组的buffer。
+成员变量中的 elementData 是存储 ArrayList 中元素的数组对象，ArrayList 的 capacity 就是这个数组的 buffer。
 
 ```
 public ArrayList(int initialCapacity) {
@@ -817,9 +872,10 @@ public ArrayList(Collection<? extends E> c) {
     }
 }
 ```
-给定 initialCapacity 的构造方法  
-默认 capacity 的构造方法  
-以某个 Collection 对象为参数的构造方法
+上面的代码包含：
+* 给定 initialCapacity 的构造方法
+* 默认 capacity 的构造方法
+* 以某个 Collection 对象为参数的构造方法
 
 ```
 public void trimToSize() {
@@ -920,7 +976,7 @@ public E get(int index) {
     return elementData(index);
 }
 ```
-get 方法返回值中可以用圆括号取出对象数组中的对象是因为有一个和 elementData 变量的同名函数？这么做的目的是什么？为什么get函数不直接用方括号然后转类型呢？
+get 方法返回值中可以用圆括号取出对象数组中的对象是因为有一个和 elementData 变量的同名函数？这么做的目的是什么？为什么 get 函数不直接用方括号然后转类型呢？
 
 ```
 private void add(E e, Object[] elementData, int s) {
@@ -1117,7 +1173,7 @@ put 方法是我们最关心的方法之一。和 HashMap 相同，ConcurrentHas
 编译器不强制要求处理的异常。该异常分来包括：运行时异常（RuntimeException）及其子类和错误（Error）及其子类。这种异常即使不使用 try-catch 子句捕获和 throw 子句抛出，编译器也会使得编译通过。
 
 ## 自定义异常
-Java提供提供的异常体系可能不会完全包含我们遇见的错误，所以允许我们可以自定义异常。
+Java 提供提供的异常体系可能不会完全包含我们遇见的错误，所以允许我们可以自定义异常。
 
 # 13、java 进程和线程
 进程：程序的一次执行过程，操作系统进行资源分配和调度的最小单位。
@@ -1187,7 +1243,7 @@ Thread 的一些常用方法
 
 # 15、接口和抽象类
 ## 接口
-Java接口是一系列方法的声明，是一些方法特征的集合，一个接口只有方法的特征没有方法的实现，因此这些方法可以在不同的地方被不同的类实现，而这些实现可以具有不同的行为（功能）。接口是解决Java无法使用多继承的一种手段，但是接口在实际中更多的作用是制定某个标准。
+Java 接口是一系列方法的声明，是一些方法特征的集合，一个接口只有方法的特征没有方法的实现，因此这些方法可以在不同的地方被不同的类实现，而这些实现可以具有不同的行为（功能）。接口是解决 Java 无法使用多继承的一种手段，但是接口在实际中更多的作用是制定某个标准。
 
 ## 抽象类
 在面向对象的概念中，所有的对象都是通过类来描绘的，但是反过来，并不是所有的类都是用来描绘对象的。如果一个类中没有包含足够的信息来描绘一个具体的对象，这样的类就是抽象类。
@@ -1199,12 +1255,12 @@ Java接口是一系列方法的声明，是一些方法特征的集合，一个�
 ## 什么时候用接口，什么时候用抽象类？
 抽象类本质上仍是类，用于表达某种事物，只是由于层次过高无法具体地表示，需要被某个具体的类来继承；而接口一般用来描述一组行为，实现该接口的类需要能够执行或满足接口内定义的所有行为，类与接口之间不存在层次关系。
 
-因此当需要为一些类提供公共的实现代码时，应优先考虑抽象类。因为抽象类中的非抽象方法可以被子类继承下来，使实现功能的代码更简单；当注重代码的扩展性跟可维护性时，应当优先采用接口。①接口与实现它的类之间可以不存在任何层次关系，接口可以实现毫不相关类的相同行为，比抽象类的使用更加方便灵活；②接口只关心对象之间的交互的方法，而不关心对象所对应的具体类。接口是程序之间的一个协议，比抽象类的使用更安全、清晰。
+因此当需要为一些类提供公共的实现代码时，应优先考虑抽象类。因为抽象类中的非抽象方法可以被子类继承下来，使实现功能的代码更简单；当注重代码的扩展性跟可维护性时，应当优先采用接口。接口与实现它的类之间可以不存在任何层次关系，可以实现毫不相关类的相同行为，比抽象类的使用更加方便灵活；接口只关心对象之间的交互的方法，而不关心对象所对应的具体类。接口是程序之间的一个协议，比抽象类的使用更安全、清晰。
 
 一般使用接口的情况更多。
 
 # 16、static{} 语句块
-static块中的语句在类被加载的时候会被执行并且只被执行一次
+static 块中的语句在类被加载的时候会被执行并且只被执行一次
 
 # 17、java 中的单例模式
 ## 懒汉式
@@ -1529,9 +1585,9 @@ public final class Class<T> implements java.io.Serializable,
 # 24、Java Object 类
 Object 类是 Java 中所有类的始祖。可以用 Object 类型的变量引用任何类型的对象，如：
 ```
-Object obj = new Employee(“Harry Hacker”, 35000);
+Object obj = new Employee("Harry Hacker", 35000);
 ```
-Object 类中的 equals 方法检测一个对象是否等于另外一个对象。Java 语言规范要求equals 方法具有下面的特性：
+Object 类中的 equals 方法检测一个对象是否等于另外一个对象。Java 语言规范要求 equals 方法具有下面的特性：
 * 对于任何非空引用 x，x.equal(x) 应该返回 true
 * 对于任何引用 x、y，x.equals(y) 和 y.equals(x) 返回值应该相同
 * 传递性：...
