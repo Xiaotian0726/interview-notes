@@ -3,7 +3,6 @@
 面试学习笔记
 
 ## 待解决的问题
-* C++ 智能指针
 * sharedPreference 的 commit 和 apply 的区别
 * android system_server
 * android mediarecorder 和 audioplayer
