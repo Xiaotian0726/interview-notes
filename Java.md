@@ -60,6 +60,8 @@
   - [实现方式](#实现方式)
 - [23、Java 反射](#23java-反射)
 - [24、Java Object 类](#24java-object-类)
+- [25、Protobuf](#25protobuf)
+- [26、Java 中的基本数据类型](#26java-中的基本数据类型)
 
 # 0、JVM Garbage Collection
 ## 垃圾判断算法
@@ -694,6 +696,49 @@ public boolean equals(Object anObject) {
 
 ## (2) StringBuilder
 可变字符序列，继承自 AbstractStringBuilder，线程不安全，执行速度快
+
+StringBuilder 也封装了一个字符数组 value，并且有一个 count 变量来表示数组中已经被使用的位置个数
+```
+int count;
+```
+
+StringBuilder 的默认构造方法为：
+```
+public StringBuilder() {
+    super(16);
+}
+```
+也就是说 `new StringBuilder()` 会创建一个长度为 16 的字符数组，count 的默认值为 0
+
+append 方法会直接拷贝字符到内部的字符数组中，如果字符数组长度不够，会进行扩展，ensureCapacityInternal(count+len) 会确保数组的长度足以容纳新添加的字符
+```
+public AbstractStringBuilder append(String str) {
+    if (str == null) str = "null";
+    int len = str.length();
+    ensureCapacityInternal(count + len);
+    str.getChars(0, len, value, count);
+    count += len;
+    return this;
+}
+
+private void ensureCapacityInternal(int minimumCapacity) {
+
+    if (minimumCapacity - value.length > 0)
+        expandCapacity(minimumCapacity);
+}
+
+    void expandCapacity(int minimumCapacity) {
+    int newCapacity = value.length * 2 + 2;
+    if (newCapacity - minimumCapacity < 0)
+        newCapacity = minimumCapacity;
+    if (newCapacity < 0) {
+        if (minimumCapacity < 0)
+            throw new OutOfMemoryError();
+        newCapacity = Integer.MAX_VALUE;
+    }
+    value = Arrays.copyOf(value, newCapacity);
+}
+```
 
 ## (3) StringBuffer
 可变字符序列，继承自 AbstractStringBuilder，线程安全，执行速度慢
@@ -1621,3 +1666,17 @@ Object 类中的 equals 方法检测一个对象是否等于另外一个对象�
 散列码（hash code）是由对象导出的一个整数值。散列码是没有规律的，如果 x 和 y 是两个不同的对象，x.hashCode() 与 y.hashCode() 基本上不会相同
 
 在 Object 中还有一个重要的 toString 方法。只要对象和一个字符串通过操作符 "+" 连接起来，Java 编译就会自动调用 toString 方法
+
+# 25、Protobuf
+是一种轻便高效的结构化数据存储格式，可以用于结构化数据串行化，或者说序列化
+
+# 26、Java 中的基本数据类型
+Java 中的基本数据类型总共 8 个：
+* byte
+* short
+* int
+* long
+* float
+* double
+* char
+* boolean
