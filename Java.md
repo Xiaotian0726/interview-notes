@@ -117,9 +117,9 @@ HashTable 类与 HashMap 几乎一致，区别在于 HashTable 不允许 key 和
 ```
 public class HashMap<K,V> extends AbstractMap<K,V>
     implements Map<K,V>, Cloneable, Serializable {
-        private static final long serialVersionUID = 362498820763181265L;
-        ...
-    }
+    private static final long serialVersionUID = 362498820763181265L;
+    ...
+}
 ```
 * 实现 Map<K, V> 接口：需要定义 size()，isEmpty()，containsKey(Object key)，containsValue(Object value) 等方法。  
 * 实现 Cloneable 接口：需要定义 clone() 方法来创建副本。  
@@ -664,6 +664,7 @@ public final class String
     /** The value is used for character storage. */
     private final char value[];
     ...
+}
 ```
 这里需要注意，value[] 是用 fianl 修饰的，虽然 value 这个引用地址不可变（即不能去引用其他 char数组），但这个数组的内容是可以变的。为了防止其内容被修改，源码作者不仅将该类设为了 final 类，而且在所有 public 方法里都防止了用户去动 value[] 的数据。
 
@@ -752,9 +753,9 @@ private void ensureCapacityInternal(int minimumCapacity) {
 
 常量池：专门用于存储、管理在编译时就可以确定的保存在.class文件中的一些数据。
 ```
-int a = 1; // 在编译时就可以确定 a 的值为 1，1 存放在常量池中，栈中存放是常量池中 1 的地址
-String str1 = "hello"; // 编译时能确定，"hello"存储在常量池中，栈中存的是对应的地址
-String str2 = new String("hello java"); // 这是一个对象，存储在堆中，"hello java"并不会放在常量池中
+int a = 1;     // 在编译时就可以确定 a 的值为 1，1 存放在常量池中，栈中存放是常量池中 1 的地址
+String str1 = "hello";     // 编译时能确定，"hello"存储在常量池中，栈中存的是对应的地址
+String str2 = new String("hello java");     // 这是一个对象，存储在堆中，"hello java"并不会放在常量池中
 ```
 # 6、抽象类
 在面向对象的概念中，所有的对象都是通过类来描绘的，但是反过来，并不是所有的类都是用来描绘对象的，如果一个类中没有包含足够的信息来描绘一个具体的对象，这样的类就是抽象类。 
@@ -784,8 +785,7 @@ public interface Collection<E> extends Iterable<E> {
     ...
 }    
 ```
-Collection 是接口，继承了 Iterable 接口  
-Collection 是集合的顶级接口，属于单值类型集合，重点子接口有 List、Queue、Set。\<E> 是集合内元素的类型。
+Collection 是接口，继承了 Iterable 接口，是集合的顶级接口，属于单值类型集合，重点子接口有 List、Queue、Set。\<E> 是集合内元素的类型。
 
 # 8、java.util.Collections
 ```
@@ -1563,7 +1563,7 @@ protected Class<?> loadClass(String name, boolean resolve)
                 }
 
                 if (c == null) {
-                    // 模板方法模式：如果还是没有加载成功，调用findClass()
+                    // 模板方法模式：如果还是没有加载成功，调用 findClass()
                     long t1 = System.nanoTime();
                     c = findClass(name);
 
@@ -1588,7 +1588,7 @@ protected Class<?> loadClass(String name, boolean resolve)
 上述的代码基本可以分为三个步骤：
 * 检查是否已经加载，如果有就直接返回，避免重复加载
 * 遵循父类优先加载机制，加载 .class 文件
-* 上面两步都失败了，调用 findClass()方法加载
+* 上面两步都失败了，调用 findClass() 方法加载
 
 .class 文件被类加载器加载到内存中，并且 JVM 根据其字节数组创建了对应的 Class 对象。Class 对象是 Class 类的实例。Class 类准备了很多字段来表示一个 .class 文件的信息，对于字段、方法、构造器等
 
