@@ -10,7 +10,6 @@
 * 数据库乐观锁和悲观锁
 * Android app 从点击图标开始的启动全过程
 * C++ 中构造函数和析构函数能否为虚函数
-* C++ sizeof(struct)
 * 算法：01 背包问题
 * Socket 与 TCP/UDP 的关系（结合项目）
 * HTTP 请求头中的 keys
