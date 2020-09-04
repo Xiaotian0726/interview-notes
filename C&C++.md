@@ -28,6 +28,7 @@
 - [10、C++ 中 static 关键字的作用](#10c-中-static-关键字的作用)
 - [11、sizeof(struct)](#11sizeofstruct)
   - [面试真题](#面试真题)
+- [12、sizeof(string)](#12sizeofstring)
 
 # 0、C++ 中传指针与传引用的比较
 当把引用作为参数传递的过程中，形式参数会作为局部变量在栈中开辟内存空间，存放的是实参变量的地址，对形参的任何操作都会被处理为间接寻址，即通过存放的这个地址去访问主调函数的实参变量。
@@ -154,7 +155,7 @@ void free(void* FirstByte);
   ```
 
 ## new/delete
-与 malloc/free 不同的是，new/delete 并不是函数（sizeof 也不是），而是 C++ 定义的关键字
+与 malloc/free 不同的是，new/delete 并不是函数（sizeof() 也不是），而是 C++ 定义的关键字
 * new：分配内存空间，并调用一个或多个构造函数来构建对象
 * delete：为将被释放的内存的对象调用一个或多个析构函数，然后释放内存
 * 如果在 new 的时候使用了 []，则 delete 的时候也要使用 []
@@ -328,3 +329,6 @@ struct MyStruct {
 };
 ```
 char 为 1 字节，double 为 8 字节，int 为 4 字节。根据上面三条原则，sizeof(MyStruct) 为 24
+
+# 12、sizeof(string)
+string 的实现在各库中可能有所不同，但是在同一库中相同一点是，无论你的 string 里放多长的字符串，它的 sizeof() 都是固定的，字符串所占的空间是从堆中动态分配的，与 string 的内容无关。
