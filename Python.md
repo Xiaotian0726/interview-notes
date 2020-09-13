@@ -1,6 +1,5 @@
 - [0、Python 中的引号](#0python-中的引号)
 - [1、](#1)
-- [2、](#2)
 # 0、Python 中的引号
 单引号和双引号都可以用来表示字符串：
 ```
@@ -31,6 +30,3 @@ s = 'The teacher said: "Practice makes perfect" is a very famous proverb.'
 ![avatar](./markdown-pics/Python跨行字符串.png)
 
 # 1、
-
-
-# 2、
