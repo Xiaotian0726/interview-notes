@@ -103,7 +103,7 @@ BroadcastReceiver 是对发送出来的 Broadcast 进行过滤、接受和响应
 Android 中提供了 Intent 机制来协助应用间的交互与通讯，Intent 负责对应用中一次操作的动作、动作涉及数据、附加数据进行描述，Android 则根据此 Intent 的描述，负责找到对应的组件，将 Intent 传递给调用的组件，并完成组件的调用。Intent 不仅可用于应用程序之间，也可用于应用程序内部的 Activity/Service 之间的交互。因此，Intent 在这里起着一个媒体中介的作用，专门提供组件互相调用的相关信息，实现调用者与被调用者之间的解耦。
 
 # 3、活动的生命周期
-![avatar](./markdown-pics/ActivityLifeCycle.jpg)
+![avatar](./screenshots/ActivityLifeCycle.jpg)
 
 # 4、活动的启动模式
 ## standard

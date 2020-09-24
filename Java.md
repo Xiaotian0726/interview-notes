@@ -1234,7 +1234,7 @@ public class Thread implements Runnable {
 位于 java.lang 包下的 Thread 类是非常重要的线程类，它实现了 Runnable 接口。
 
 线程包含以下几种状态：创建(new)、就绪(runnable)、运行(running)、阻塞(blocked)、time waiting、waiting、消亡（dead），在有些教程上将 blocked、waiting、time waiting 统称为阻塞(blocked)状态，这个也是可以的，只不过这里将线程的状态和 java 中的方法调用联系起来，所以将 waiting 和 time waiting 两个状态分离出来。如下图所示：
-![avatar](./markdown-pics/线程状态图.jpg)
+![avatar](./screenshots/线程状态图.jpg)
 
 ```
 // 静态方法，返回当前正在执行的 Thread
@@ -1538,7 +1538,7 @@ A a = new A();
 * 子类调用父类的构造器
 * 构造器执行：执行构造代码块和初始化语句、构造器内容
 
-![avatar](./markdown-pics/Java创建对象的过程.jpg)
+![avatar](./screenshots/Java创建对象的过程.jpg)
 
 其中.class 文件是由类加载器加载的，其核心方法是 loadClass()：
 ```
@@ -1625,7 +1625,7 @@ public final class Class<T> implements java.io.Serializable,
 
 下面是 Class、Field、Method、Constructor 四个对象的关系：
 
-![](markdown-pics/Class对象.jpg)
+![](screenshots/Class对象.jpg)
 
 # 24、Java Object 类
 Object 类是 Java 中所有类的始祖。可以用 Object 类型的变量引用任何类型的对象，如：
