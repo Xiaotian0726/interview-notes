@@ -294,6 +294,17 @@ unique_ptr<string> p4;
 p4 = p3;    // 编译错误
 ```
 
+查阅源码，可知 std::unique_ptr 的拷贝构造函数和赋值运算符被标记为 **delete**：
+```
+template<class T>
+class unique_ptr
+{
+	...
+	unique_ptr(const unique_ptr&) = delete;
+	unique_Ptr& operator=(const unique_ptr&) = delete;
+}
+```
+
 但有时候 unique_ptr 的赋值操作是允许且安全的。考虑以下代码：
 ```
 unique_ptr<string> demo(const char* s) {
