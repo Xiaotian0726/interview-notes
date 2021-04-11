@@ -27,7 +27,6 @@
   - [ANR 产生的原因](#anr-产生的原因)
   - [ANR 的类型](#anr-的类型)
   - [如何避免 ANR](#如何避免-anr)
-- [9、](#9)
 
 # 0、Android 生成 APK 的过程
 * (1) 打包 res 资源文件，生成 R.java 文件
@@ -231,5 +230,3 @@ ANR 的全称是 Application Not Responding（应用程序无响应）
 * UI 线程尽量只做跟 UI 相关的工作
 * 耗时的操作，如 I/O、网络连接，放到单独的线程处理
 * 尽量用 Handler 处理 UI 线程和非 UI 线程之间的交互
-
-# 9、

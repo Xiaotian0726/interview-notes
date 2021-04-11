@@ -10,8 +10,8 @@
 - [1、java.util.HashMap](#1javautilhashmap)
   - [基本介绍](#基本介绍)
   - [源码分析](#源码分析)
-- [2、关于 HashCode()](#2关于-hashcode)
-- [3、关于 final](#3关于-final)
+- [2、HashCode()](#2hashcode)
+- [3、final](#3final)
   - [(1) final 类](#1-final-类)
   - [(2) final 方法](#2-final-方法)
   - [(3) final 变量](#3-final-变量)
@@ -26,7 +26,7 @@
 - [9、java.util.HashSet 源码分析](#9javautilhashset-源码分析)
 - [10、java.util.ArrayList 源码分析](#10javautilarraylist-源码分析)
 - [11、java.util.concurrent.ConcurrentHashMap](#11javautilconcurrentconcurrenthashmap)
-- [12、关于 Exception](#12关于-exception)
+- [12、异常 Exception](#12异常-exception)
   - [可检查异常](#可检查异常)
   - [不可检查异常](#不可检查异常)
   - [自定义异常](#自定义异常)
@@ -618,7 +618,7 @@ final class EntrySet extends AbstractSet<Map.Entry<K,V>> {
 用来获取 HashMap 中键视图、值视图、键值对视图的相关内容
 
 未完待续...
-# 2、关于 HashCode()
+# 2、HashCode()
 ```
 public native int hashCode();
 ```
@@ -631,7 +631,7 @@ public native int hashCode();
 ```
 s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1]
 ```
-# 3、关于 final
+# 3、final
 final 可以用来修类、方法、变量
 
 ## (1) final 类
@@ -1210,7 +1210,7 @@ put 方法是我们最关心的方法之一。和 HashMap 相同，ConcurrentHas
 
 未完待续...
 
-# 12、关于 Exception
+# 12、异常 Exception
 ## 可检查异常
 编译器要求必须处理的异常。在 Exception 类及其子类中，除了 RuntimeException 类及其子类外，其余都是可检查异常。这种异常编译器会强制要求处理它，需要使用 try-catch 语句去捕获处理或者使用 throw 子句抛出该异常让其他地方去处理它，否则编译器会不允许编译通过。
 
