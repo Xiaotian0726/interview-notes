@@ -41,7 +41,7 @@
 引用是类型安全的，在引用过程中会进行类型检查。而指针则不会。
 
 知乎上“引用不能防止空引用”的论调：
-```
+```C++
 void func(A& );
 A* a = NULL;
 func(*a);     // 空引用，但编译期间无法检查
@@ -93,7 +93,7 @@ const 修饰的量有数据类型，编译器会对该量进行类型检查；#d
 
 ## 在内存中的存储方式
 #define 仅仅只是文本替换，有几个地方被使用则替换几次，不涉及内存分配；const 常量会被保存到符号表中，被作为其他变量的值时会相应地分配一次内存
-```
+```C++
 #define MACRO 123
 const int INF = 100000000;    // 定义常量，编译时未分配内存
 int main() {
@@ -116,7 +116,7 @@ int main() {
 
 为了解决这个问题，特别的引入了 inline 修饰符，表示为内联函数。
 
-```
+```C++
 inline function (int i) {
     return i*i;
 }
@@ -137,18 +137,18 @@ inline function (int i) {
 malloc/free 是 C 语言的标准库函数，用于动态申请内存和释放内存
 
 函数原型
-```
+```C++
 // 分配 heap 中的 NumBytes 个字节，如果分配成功则返回指向这块内存的指针，如果分配失败则返回 NULL
 // 必须检查是否分配成功！
 void* malloc(long NumBytes);
 
 // 释放 FirstByte 指向的那块内存，使该内存又可以被使用
 void free(void* FirstByte);
-```
+```C++
 需要注意的有：
 * malloc 函数分配的空间实际会比 NumBytes 稍大一些，多出来的空间用来存储一些内存管理信息，如分配块的长度等
 * free 释放的是那块内存，而指针变量 FirstByte 的值并没有变化，也就是说它指向的仍然是那块内存，只是 free 之后那块内存你不能够再使用了。比如下面的程序是可以正确运行的：
-  ```
+  ```C++
     int* p = NULL;
 
 	p = (int*) malloc(sizeof(int));
@@ -171,7 +171,7 @@ void free(void* FirstByte);
 ## 两者的区别
 * malloc/free 是 C 的标准库函数，而 new/delete 是 C++ 的运算符
 * new 是类型安全的，而 malloc 不是。比如：
-  ```
+  ```C++
   int* p = new float[2];     // 编译器能够发现错误
   int* p = (int*) malloc(2 * sizeof(float));     // 编译器不能发现错误
   ```
@@ -290,14 +290,14 @@ auto_ptr 是 C++ 标准库提供的类模板，auto_ptr 对象通过初始化指
 
 ## unique_ptr
 替换 auto_ptr，拥有更严格的所有权的概念。当对 unique_ptr 采取拷贝构造或者赋值的操作时会产生编译阶段的错误，编译阶段错误比潜在的程序崩溃更安全。
-```
+```C++
 unique_ptr<string> p3(new string("auto"));
 unique_ptr<string> p4;
 p4 = p3;    // 编译错误
 ```
 
 查阅源码，可知 std::unique_ptr 的拷贝构造函数和赋值运算符被标记为 **delete**：
-```
+```C++
 template<class T>
 class unique_ptr
 {
@@ -308,7 +308,7 @@ class unique_ptr
 ```
 
 但有时候 unique_ptr 的赋值操作是允许且安全的。考虑以下代码：
-```
+```C++
 unique_ptr<string> demo(const char* s) {
 	unique<string> temp(new string(s));
 	return temp;
@@ -322,7 +322,7 @@ int main() {
 demo() 函数返回了一个临时的 unique_ptr，然后 ps 接管了原本归返回的 unique_ptr 所有的对象，返回的 unique_ptr 被销毁。这没有任何问题，因为此时该 string 的所有权属于 ps。另一个好处是，demo() 返回的临时 unique_ptr 很快被销毁，没有机会用它来访问无效的数据。没有理由禁止这种赋值，而编译器也的确允许这种赋值！
 
 总之，当程序试图将一个 unique_ptr 赋给另一个，而源 unique_ptr 是一个临时右值时，编译器允许这样做；而若源 unique_ptr 将存在一段时间，则会被编译器禁止：
-```
+```C++
 unique_ptr<string> pu1(new string("Hi ho!"));
 unique_ptr<string> pu2;
 pu2 = pu1;    //#1 not allowed
@@ -369,7 +369,7 @@ sizeof(struct) 受到内存对齐的影响。其具体细节和编译器相关�
 * 结构体变量的总大小为结构体最宽基本类型成员大小的整数倍。如有需要，编译器会在末尾成员之后加上填充字节
 
 ## 面试真题
-```
+```C++
 // 求下列结构体的 size
 struct MyStruct {
 	char c;
@@ -390,7 +390,7 @@ void* 是一种特殊类型的指针，可以存放任意对象的地址。可�
 
 # 15、C++ 中如何实现 Java 中的 Interface
 编写一个类，为其添加一个纯虚函数，代表接口方法。Interface 本身无法实例化，因此不应该编写构造函数和析构函数。接口类中不应该有成员变量和静态变量，但是可以有静态常量：
-```
+```C++
 #ifndef ISHAPE_H
 #define ISHAPE_H
  

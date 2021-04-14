@@ -114,7 +114,7 @@ HashTable 类与 HashMap 几乎一致，区别在于 HashTable 不允许 key 和
 
 ## 源码分析
 
-```
+```Java
 public class HashMap<K,V> extends AbstractMap<K,V>
     implements Map<K,V>, Cloneable, Serializable {
     private static final long serialVersionUID = 362498820763181265L;
@@ -126,7 +126,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
 * 实现 Serializable 接口：实现 java.io.Serializable 接口的类是可序列化的。这个接口其实是个空接口，当我们让实体类实现 Serializable 接口时，其实是在告诉 JVM 此类可被序列化，可被默认的序列化机制序列化。便于数据传输，尤其是在远程调用的时候。  
 * serialVersionUID 适用于 java 序列化机制。简单来说，JAVA 序列化的机制是通过判断类的 serialVersionUID 来验证的版本一致的。
 
-```
+```Java
 static final int DEFAULT_INITIAL_CAPACITY = 1 << 4; // aka 16
 static final int MAXIMUM_CAPACITY = 1 << 30;
 static final float DEFAULT_LOAD_FACTOR = 0.75f;
@@ -140,7 +140,7 @@ static final int MIN_TREEIFY_CAPACITY = 64;
 * static final int MIN_TREEIFY_CAPACITY = 64：
 
 
-```
+```Java
 static class Node<K,V> implements Map.Entry<K,V> {
         final int hash;
         final K key;
@@ -183,13 +183,13 @@ static class Node<K,V> implements Map.Entry<K,V> {
 ```
 存储每个键值对的静态内部类 Node<K, V>，实现了 Map.Entry<K, V> 接口，包含 getKey()，getValue()，setValue() 等函数。  
 在 equals(Object o) 方法中用到了 Object.equals 方法，其源码如下：
-```
+```Java
 public static boolean equals(Object a, Object b) {
     return (a == b) || (a != null && a.equals(b));
 }
 ```
 
-```
+```Java
 static final int hash(Object key) {
     int h;
     return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
@@ -197,7 +197,7 @@ static final int hash(Object key) {
 ```
 h >>> 16 取了 key.hashCode 的高 16 位放到低位，高位补 0，再与 key.hashCode 进行异或操作。对于某一个键，通过该方法快速、高质量地计算出一个 int 类型的 hash 值，然后通过 hash & (table.length - 1) 来得到在 table 中的 index。由于 length 绝大多数情况下都小于 2^16，如果只使用 hashCode 作为 hash 值，则始终是 hashCode 的低位参与运算，没有用到高位，导致结果分布不均匀。因此该计算 hash 值的方法用到了 hashCode 的全部 32 位 bits，结合异或运算，使得分布更加随机、均匀的同时，既不偏向 0 也不偏向 1
 
-```
+```Java
 static final int tableSizeFor(int cap) {
     int n = -1 >>> Integer.numberOfLeadingZeros(cap - 1);
     return (n < 0) ? 1 : (n >= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;
@@ -205,11 +205,12 @@ static final int tableSizeFor(int cap) {
 ```
 已知 -1 的补码为 1111 1111 $\dots$ 1111(共32位)，令 -1 进行无符号右移若干位，相当于在高位把若干个 1 变为 0，位数为 cap-1 的前导 0 的个数。当 cap 为 2 的幂时，例如 cap = 16，此时 n = cap-1 = 15，返回值为 16；当 cap 不为 2 的幂时，例如 cap = 15，此时 n = 15，返回值为 16。概括地讲，就是返回一个大于等于且最接近 cap 的 2 的幂次方整数。
 
-```
+```Java
 /* ---------------- Fields -------------- */
 // 如果用 transient 声明一个实例变量，当对象存储时，它的值不需要维持。换句话来说就是，用 transient 关键字标记的成员变量不参与序列化过程。
 // 在实际开发过程中，我们常常会遇到这样的问题，某个类的有些属性需要序列化，而其他属性不需要被序列化。例如一个用户有一些敏感信息（如密码，银行卡号等），为了安全起见，不希望在网络操作（主要涉及到序列化操作，本地序列化缓存也适用）中被传输，这些信息对应的变量就可以加上 transient 关键字。换句话说，这个字段的生命周期仅存于调用者的内存中而不会写到磁盘里持久化。
-// 总之，java 的 transient 关键字为我们提供了便利，你只需要实现 Serilizable 接口，将不需要序列化的属性前添加关键字 transient，序列化对象的时候，这个属性就不会序列化到指定的目的地中。
+// 总之，java 的 transient 关键字为我们提供了便利，你只需要实现 Serilizable 接口，将不需要序列化的属性前添加关键字 transient，序列化对象的时候，这个属性就不会序列化到指定的目的地中
+
 transient Node<K,V>[] table;
 transient Set<Map.Entry<K,V>> entrySet;
 transient int size;
@@ -224,7 +225,7 @@ final float loadFactor;
 * threshold：HashMap 的扩容阈值，由当前的 capacity 和 loadFactor 决定。在 HashMap 中存储的键值对超过这个值时，capacity 自动扩容容量为原来的二倍。  
 * loadFactor：HashMap 的负载因子，可计算出当前 table 长度下的扩容阈值：threshold = table.length * loadFactor。
 
-```
+```Java
 public HashMap(int initialCapacity, float loadFactor) {
     if (initialCapacity < 0)
         throw new IllegalArgumentException("Illegal initial capacity: " +
@@ -240,21 +241,21 @@ public HashMap(int initialCapacity, float loadFactor) {
 ```
 显式地给出 initialCapacity 和 loadFactor 的构造方法，其中 loadFactor 不能为 NaN。初始化 threshold 时直接调用 tableSizeFor(initialCapacity) 函数。
 
-```
+```Java
 public HashMap(int initialCapacity) {
     this(initialCapacity, DEFAULT_LOAD_FACTOR);
 }
 ```
 只给出 initialCapacity 的构造方法，使用默认的 loadFactor 来调用上一个构造方法
 
-```
+```Java
 public HashMap() {
     this.loadFactor = DEFAULT_LOAD_FACTOR; // all other fields defaulted
 }
 ```
 所有参数均为默认值的构造方法
 
-```
+```Java
 public HashMap(Map<? extends K, ? extends V> m) {
     this.loadFactor = DEFAULT_LOAD_FACTOR;
     putMapEntries(m, false);
@@ -287,7 +288,7 @@ final void putMapEntries(Map<? extends K, ? extends V> m, boolean evict) {
 ```
 以某个特定的Map作为参数构造 HashMap，调用 putMapEntries 函数把 m 的内容移到构造的 HashMap 中
 
-```
+```Java
 public int size() {
     return size;
 }
@@ -298,7 +299,7 @@ public boolean isEmpty() {
 ```
 这俩函数没啥可说的
 
-```
+```Java
 public V get(Object key) {
     Node<K,V> e;
     return (e = getNode(hash(key), key)) == null ? null : e.value;
@@ -327,14 +328,14 @@ final Node<K,V> getNode(int hash, Object key) {
 ```
 get 函数调用了 getNode 函数，getNode 函数的参数是 key 的 hash 值以及 key 本身，返回值是 Node<K, V>。当 table == null 或 table.length == 0 或检索到的第一个元素为 null 时直接返回 null。然后再判断第一个元素是否为目标元素，如果是则直接返回该元素，如果不是，再分树和链表两种情况继续检索。
 
-```
+```Java
 public boolean containsKey(Object key) {
     return getNode(hash(key), key) != null;
 }
 ```
 有了 getNode 方法后，containsKey 直接调用 getNode 方法将即可写出
 
-```
+```Java
 public V put(K key, V value) {
     return putVal(hash(key), key, value, false, true);
 }
@@ -394,7 +395,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
 ```
 put 函数调用了 putVal 方法，putVal 方法参数为 hash 值、键、值、onlyIfAbsent（该值为 true 时，如果放入的键已存在，则不会改变相应的值）、evict（if false, the table is in creation mode），返回值为插入键的旧值（若为 null 则返回 null）。
 
-```
+```Java
 final Node<K,V>[] resize() {
     Node<K,V>[] oldTab = table;
     int oldCap = (oldTab == null) ? 0 : oldTab.length;
@@ -473,7 +474,7 @@ resize 函数。初始化 table size 或者使之 *=2，返回值是 Node<K, V>[
 
 当 hashMap 中的元素个数超过 table.length * loadFactor 时，就会进行数组扩容。loadFactor 的默认值为 0.75，也就是说，默认情况下，数组大小为 16，那么当 hashMap 中元素个数超过 16 * 0.75 = 12 时，数组的大小就会扩展为 2 * 16 = 32，即扩大一倍，然后重新计算每个元素在数组中的位置。这个操作非常消耗性能，所以如果我们已经预知 hashMap 中元素的个数，那么预设元素的个数能够有效的提高 hashMap 的性能。比如说，当我们有 1000 个元素可以考虑 new HashMap(1000), 但是理论上来讲 new HashMap(1024) 更合适，不过即使是 1000，hashMap 也自动会将其设置为 1024。但是 new HashMap(1024) 还不是最合适的，因为 1000 > 1024*0.75, 也就是说我们 new HashMap(2048) 才最合适，避免了消耗性能的 resize() 操作。
 
-```
+```Java
 final void treeifyBin(Node<K,V>[] tab, int hash) {
     int n, index; Node<K,V> e;
     // 当表为空或者长度不够时，仅扩容
@@ -498,7 +499,7 @@ final void treeifyBin(Node<K,V>[] tab, int hash) {
 ```
 当表长度达到 MIN_TREEIFY_CAPACITY 时，树化给定的某个 index 处的链表，否则仅进行扩容操作。
 
-```
+```Java
 public V remove(Object key) {
     Node<K,V> e;
     return (e = removeNode(hash(key), key, null, false, true)) == null ?
@@ -549,7 +550,7 @@ final Node<K,V> removeNode(int hash, Object key, Object value,
 remove(Object key)：根据某个键来移除键值对。如果该键值对存在，则移除后返回旧值，否则返回 null。  
 该方法调用了 removeNode 方法，参数为 hash、Key、Value（如果 matchValue == true 则需要匹配，否则忽略）、matchValue、movable（若 moveable == false，移除该结点后不移动其他结点），返回值为被移除的键值对（如果存在的话）。
 
-```
+```Java
 public void clear() {
     Node<K,V>[] tab;
     modCount++;
@@ -562,7 +563,7 @@ public void clear() {
 ```
 clear 函数：清空所有键值对，size 归零，但 table.length 似乎不变？
 
-```
+```Java
 public boolean containsValue(Object value) {
     Node<K,V>[] tab; V v;
     if ((tab = table) != null && size > 0) {
@@ -579,7 +580,7 @@ public boolean containsValue(Object value) {
 ```
 containsValue(Object value)：暴力遍历
 
-```
+```Java
 public Set<K> keySet() {
     Set<K> ks = keySet;
     if (ks == null) {
@@ -619,7 +620,7 @@ final class EntrySet extends AbstractSet<Map.Entry<K,V>> {
 
 未完待续...
 # 2、HashCode()
-```
+```Java
 public native int hashCode();
 ```
 根据这个方法的声明可知，该方法返回一个 int 类型的数值，并且是本地方法，因此在 Object 类中并没有给出具体的实现。native 关键字说明这个方法并不是用 java 代码实现的，而是来源于本地库的实现。
@@ -628,7 +629,7 @@ public native int hashCode();
 如果两个对象的 hashCode() 相等，无法判断两个对象是否相同，还需要调用 equals 方法。
 
 以下是 String 中的 hashCode() 计算方法：
-```
+```Java
 s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1]
 ```
 # 3、final
@@ -647,7 +648,7 @@ final 类举例
 
 ## (3) final 变量
 final 关键字可用于变量声明，一旦该变量被设定，就不可以再改变该变量的值。如果 final 修饰的是一个对象，则该引用不能去引用其他对象，但是可以修改这个对象的内容。通常，由 final 定义的变量为常量。在 Java 中定义全局常量，通常使用 public static final 修饰，这样的常量只能在定义是被赋值，被定义为 final 的常量定义时需要使用大写字母命名，并且中间使用下划线进行连接。
-```
+```Java
 public static final double PI_VALUE = 3.14;
 ```
 
@@ -658,7 +659,7 @@ public static final double PI_VALUE = 3.14;
 String 的值是不可变的，这就导致每次对 String 的操作（如 str += "Hello"）都会生成新的 String 对象，这样不仅效率低下，而且大量浪费有限的内存空间。
 
 String 用 char[] 来存放字符串：
-```
+```Java
 public final class String
     implements java.io.Serializable, Comparable<String>, CharSequence {
     /** The value is used for character storage. */
@@ -671,7 +672,7 @@ public final class String
 而正因为 String 是不可变对象，不能被写，所以是线程安全的。同时一个字符串常量存放在常量池中，节省了内存空间的使用率
 
 String 的 equals 方法：
-```
+```Java
 public boolean equals(Object anObject) {
     if (this == anObject) {
         return true;
@@ -699,12 +700,12 @@ public boolean equals(Object anObject) {
 可变字符序列，继承自 AbstractStringBuilder，线程不安全，执行速度快
 
 StringBuilder 也封装了一个字符数组 value，并且有一个 count 变量来表示数组中已经被使用的位置个数
-```
+```Java
 int count;
 ```
 
 StringBuilder 的默认构造方法为：
-```
+```Java
 public StringBuilder() {
     super(16);
 }
@@ -712,7 +713,7 @@ public StringBuilder() {
 也就是说 `new StringBuilder()` 会创建一个长度为 16 的字符数组，count 的默认值为 0
 
 append 方法会直接拷贝字符到内部的字符数组中，如果字符数组长度不够，会进行扩展，ensureCapacityInternal(count+len) 会确保数组的长度足以容纳新添加的字符
-```
+```Java
 public AbstractStringBuilder append(String str) {
     if (str == null) str = "null";
     int len = str.length();
@@ -752,7 +753,7 @@ private void ensureCapacityInternal(int minimumCapacity) {
 静态域：存放静态成员
 
 常量池：专门用于存储、管理在编译时就可以确定的保存在.class文件中的一些数据。
-```
+```Java
 int a = 1;     // 在编译时就可以确定 a 的值为 1，1 存放在常量池中，栈中存放是常量池中 1 的地址
 String str1 = "hello";     // 编译时能确定，"hello"存储在常量池中，栈中存的是对应的地址
 String str2 = new String("hello java");     // 这是一个对象，存储在堆中，"hello java"并不会放在常量池中
@@ -767,7 +768,7 @@ String str2 = new String("hello java");     // 这是一个对象，存储在堆
 构造方法、static 方法不能被声明为抽象方法，final 类不能被声明为抽象类。
 
 # 7、java.util.Collection
-```
+```Java
 public interface Collection<E> extends Iterable<E> {
     int size();
     boolean isEmpty();
@@ -788,7 +789,7 @@ public interface Collection<E> extends Iterable<E> {
 Collection 是接口，继承了 Iterable 接口，是集合的顶级接口，属于单值类型集合，重点子接口有 List、Queue、Set。\<E> 是集合内元素的类型。
 
 # 8、java.util.Collections
-```
+```Java
 public class Collections {
     private Collections() {
     }
@@ -798,13 +799,13 @@ public class Collections {
 Collection 则是集合类的一个工具类/帮助类，提供了一系列静态方法，如对集合进行排序、搜索等
 
 sort 方法：
-```
+```Java
 public static <T extends Comparable<? super T>> void sort(List<T> list) {
     list.sort(null);
 }
 ```
 sort 方法调用了参数对象 list 的 sort 方法，要求对象是一个 List\<T\> 类型的对象，其中 T 必须实现了 Comparable 接口。继续深入源码，可以发现 List\<T\> 的 sort 方法调用了 Arrays 的 sort 方法：
-```
+```Java
 default void sort(Comparator<? super E> c) {
     Object[] a = this.toArray();
     Arrays.sort(a, (Comparator) c);
@@ -816,7 +817,7 @@ default void sort(Comparator<? super E> c) {
 }
 ```
 shuffle 方法（洗牌方法）：
-```
+```Java
 public static void shuffle(List<?> list) {
     Random rnd = r;
     if (rnd == null)
@@ -853,7 +854,7 @@ public static void shuffle(List<?> list, Random rnd) {
 未完...
 
 # 9、java.util.HashSet 源码分析
-```
+```Java
 public class HashSet<E>
     extends AbstractSet<E>
     implements Set<E>, Cloneable, java.io.Serializable
@@ -870,7 +871,7 @@ public class HashSet<E>
 HashSet 底层由 HashMap 实现，值存放于 HashMap 的 key 上，value 统一为 PRESENT，即所有的 value 都是一个统一的 Object 对象。
 
 # 10、java.util.ArrayList 源码分析
-```
+```Java
 public class ArrayList<E> extends AbstractList<E>
         implements List<E>, RandomAccess, Cloneable, java.io.Serializable
 {
@@ -890,7 +891,7 @@ ArrayList 实现了 List、RandomAccess、Cloneable 等实用接口
 ArrayList 只能存放对象，不能存放基本类型  
 成员变量中的 elementData 是存储 ArrayList 中元素的数组对象，ArrayList 的 capacity 就是这个数组的 buffer。
 
-```
+```Java
 public ArrayList(int initialCapacity) {
     if (initialCapacity > 0) {
         this.elementData = new Object[initialCapacity];
@@ -922,7 +923,7 @@ public ArrayList(Collection<? extends E> c) {
 * 默认 capacity 的构造方法
 * 以某个 Collection 对象为参数的构造方法
 
-```
+```Java
 public void trimToSize() {
     modCount++;
     if (size < elementData.length) {
@@ -935,7 +936,7 @@ public void trimToSize() {
 将该 ArrayList 的 capacity 修剪至当前大小。实际应用可以用此方法来减小内存占用。  
 Arrays.copyOf 是对 elementData 中元素的拷贝，length 变为实际的 size。
 
-```
+```Java
 public void ensureCapacity(int minCapacity) {
     // 扩容需要满足的条件：
     // (1) 当前 length 不满足 minCapacity 的需求
@@ -970,7 +971,7 @@ private Object[] grow() {
 ```
 上述方法中仅 ensureCapacity(int minCapacity) 是 public 的，作用是增加 ArrayLust 的 capacity，使其至少能容纳 minCapacity 个元素。
 
-```
+```Java
 public int size() {
     return size;
 }
@@ -1005,7 +1006,7 @@ int indexOfRange(Object o, int start, int end) {
 ```
 这几个没什么可说的
 
-```
+```Java
 @SuppressWarnings("unchecked")
 E elementData(int index) {
     return (E) elementData[index];
@@ -1023,7 +1024,7 @@ public E get(int index) {
 ```
 get 方法返回值中可以用圆括号取出对象数组中的对象是因为有一个和 elementData 变量的同名函数？这么做的目的是什么？为什么 get 函数不直接用方括号然后转类型呢？
 
-```
+```Java
 private void add(E e, Object[] elementData, int s) {
     if (s == elementData.length)
         elementData = grow();
@@ -1042,7 +1043,7 @@ public boolean add(E e) {
 未完待续...
 
 # 11、java.util.concurrent.ConcurrentHashMap
-```
+```Java
 public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
     implements ConcurrentMap<K,V>, Serializable {
     private static final long serialVersionUID = 7249069246763182397L;
@@ -1052,7 +1053,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
 concurrent(adj. 并发的，一致的)  
 ConcurrentHashMap 是 Java 中的一个线程安全且高效的 HashMap 实现。平时涉及高并发如果要用 map 结构，那第一时间想到的就是它。
 
-```
+```Java
 static final int HASH_BITS = 0x7fffffff; // usable bits of normal node hash
 
 static final int spread(int h) {
@@ -1061,7 +1062,7 @@ static final int spread(int h) {
 ```
 ConcurrentHashMap 使用 hashCode() ^ (hashCode() >>> 16) & 0x7fffffff 来计算 hash 值。相较于 HashMap，多与上了一个较大的整数，该整数低位连续 31 个 1，仅最高位为 0。这么操作的目的一说是 ConcurrentHashMap 的 MAXIMUM_CAPACITY = 1 << 30，在进行 hash & (table.length - 1) 时最高位示用不到的；另一说是为了防止与一些预留的 hash 值产生冲突，如 MOVED(-1)、TREEBIN(-2)、RESERVED(-3)。
 
-```
+```Java
 // sizeCtl: Table initialization and resizing control
 // sizeCtl == -1 for initialization
 // sizeCtl == -(1 + the number of active resizing threads)
@@ -1102,7 +1103,7 @@ private final Node<K,V>[] initTable() {
 ```
 initTable() 函数，返回一个键值对数组对象
 
-```
+```Java
 final Node<K,V>[] helpTransfer(Node<K,V>[] tab, Node<K,V> f) {
     Node<K,V>[] nextTab; int sc;
     // 如果(当前表非空)且(f是ForwardingNode)且(f.nextTable非空)
@@ -1126,7 +1127,7 @@ final Node<K,V>[] helpTransfer(Node<K,V>[] tab, Node<K,V> f) {
 ```
 如果已经有一个线程在执行 resize() 操作，则本线程需要执行 helpTransfer。参数是 table 和对应 index 的键值对。
 
-```
+```Java
 public V put(K key, V value) {
     return putVal(key, value, false);
 }
@@ -1226,7 +1227,7 @@ Java 提供提供的异常体系可能不会完全包含我们遇见的错误，
 线程：是进程内的一个可调度实体，CPU 调度的基本单位
 
 # 14、java.lang.Thread
-```
+```Java
 public class Thread implements Runnable {
     ...
 }
@@ -1236,7 +1237,7 @@ public class Thread implements Runnable {
 线程包含以下几种状态：创建(new)、就绪(runnable)、运行(running)、阻塞(blocked)、time waiting、waiting、消亡（dead），在有些教程上将 blocked、waiting、time waiting 统称为阻塞(blocked)状态，这个也是可以的，只不过这里将线程的状态和 java 中的方法调用联系起来，所以将 waiting 和 time waiting 两个状态分离出来。如下图所示：
 ![avatar](./screenshots/线程状态图.jpg)
 
-```
+```Java
 // 静态方法，返回当前正在执行的 Thread
 public static native Thread currentThread();
 
@@ -1310,7 +1311,7 @@ static 块中的语句在类被加载的时候会被执行并且只被执行一�
 # 17、java 中的单例模式
 ## 懒汉式
 最基本的实现方式，不支持多线程，严格意义上来说不算单例模式。lazy loading（延迟加载）
-```
+```Java
 public class Singleton {
     private static Singleton instance;
     private Singleton() {}
@@ -1326,7 +1327,7 @@ public class Singleton {
 
 ## 加锁的懒汉式
 lazy loading，支持多线程，但是加锁导致效率低
-```
+```Java
 public class Singleton {
     private static Singleton instance;
     private Singleton() {}
@@ -1342,7 +1343,7 @@ public class Singleton {
 
 ## 饿汉式
 非 lazy loading，在类加载时便已完成了初始化，支持多线程，不需要判 null 而直接返回对象，效率高，但是容易产生垃圾对象
-```
+```Java
 public class Singleton {  
     private static Singleton instance = new Singleton();  
     private Singleton() {}
@@ -1355,7 +1356,7 @@ public class Singleton {
 
 ## 双重锁
 线程安全且能保持高性能
-```
+```Java
 public class Singleton {
     private volatile static Singleton singleton;
     private Singleton() {}
@@ -1375,7 +1376,7 @@ public class Singleton {
 
 ## 静态内部类/登记式
 只有通过显式调用 getInstance 方法时，才会显式装载 SingletonHolder 类，从而实例化 instance，因此是 lazy loading 的
-```
+```Java
 public class Singleton {
     private static class SingletonHolder {
         private static final Singleton INSTANCE = new Singleton();
@@ -1389,7 +1390,7 @@ public class Singleton {
 ```
 
 ## 枚举
-```
+```Java
 public enum Singleton {
     INSTANCE;
     public void whateverMethod() {
@@ -1404,7 +1405,7 @@ public enum Singleton {
 * 指令重排序被禁止了
 
 先看一段代码，假如线程 1 先执行，线程 2 后执行
-```
+```Java
 // 线程 1
 boolean stop = false;
 while (!stop) {
@@ -1422,7 +1423,7 @@ stop = true
 
 ## volatile 保持原子性吗？
 先看一个例子：
-```
+```Java
 public class VolatileTest {
     public volatile int inc = 0;
 
@@ -1458,7 +1459,7 @@ public class VolatileTest {
 这种情况使得 inc 少增了 1 ，简单地说就是 volatile 关键字在这种情况下不能实现线程安全。如果用锁则可以解决这个问题
 
 考虑下面这个例子：
-```
+```Java
 // 线程 1 
 context = loadContext();
 inited = true;
@@ -1489,7 +1490,7 @@ synchronized 底层是用操作系统的 mutex lock 来实现的
 * 代码块
 * 方法
 * 类：作用于这个类的所有对象
-  ```
+  ```Java
   class ClassName {
     public void method() {
       synchronized(ClassName.class) {
@@ -1501,7 +1502,7 @@ synchronized 底层是用操作系统的 mutex lock 来实现的
 
 # 21、Java 四种引用类型
 ## 强引用
-```
+```Java
 StringBuffer stringBuffer = new StringBuffer("Helloword");
 ```
 可以直接访问目标对象，任何时候都不会被系统回收，可能导致内存泄露
@@ -1528,7 +1529,7 @@ StringBuffer stringBuffer = new StringBuffer("Helloword");
 
 # 23、Java 反射
 假设 `main` 方法中有以下代码：
-```
+```Java
 A a = new A();
 ```
 则创建对象的过程如下：
@@ -1541,7 +1542,7 @@ A a = new A();
 ![avatar](./screenshots/Java创建对象的过程.jpg)
 
 其中.class 文件是由类加载器加载的，其核心方法是 loadClass()：
-```
+```Java
 protected Class<?> loadClass(String name, boolean resolve)
         throws ClassNotFoundException
     {
@@ -1593,7 +1594,7 @@ protected Class<?> loadClass(String name, boolean resolve)
 .class 文件被类加载器加载到内存中，并且 JVM 根据其字节数组创建了对应的 Class 对象。Class 对象是 Class 类的实例。Class 类准备了很多字段来表示一个 .class 文件的信息，对于字段、方法、构造器等
 
 Class 类的构造器是私有的，我们无法 new 一个 Class 对象，只能由 JVM 创建。JVM 在构造 Class 对象时，需要传入一个类的加载器，然后才会有上面的加载、创建过程
-```
+```Java
 public final class Class<T> implements java.io.Serializable,
                               GenericDeclaration,
                               Type,
@@ -1629,7 +1630,7 @@ public final class Class<T> implements java.io.Serializable,
 
 # 24、Java Object 类
 Object 类是 Java 中所有类的始祖。可以用 Object 类型的变量引用任何类型的对象，如：
-```
+```Java
 Object obj = new Employee("Harry Hacker", 35000);
 ```
 Object 类中的 equals 方法检测一个对象是否等于另外一个对象。Java 语言规范要求 equals 方法具有下面的特性：
@@ -1641,24 +1642,24 @@ Object 类中的 equals 方法检测一个对象是否等于另外一个对象�
 
 下面给出编写一个完美的 equals 方法的建议：
 * 检测 this 与 otherObject 是否引用同一个对象：
-  ```
+  ```Java
   if (this == otherObject) return true;
   ```
 * 检测 otherObject 是否为 null：
-  ```
+  ```Java
   if (otherObject == null) return false;
   ```
 * 检测两者是否属于同一个类。
   * 如果 equals 的语义在每个子类中都有所改变，则：
-    ```
+    ```Java
     if (getClass() != otherObject.getClass()) return false;
     ```
   * 如果所有的子类都拥有统一的语义，则：
-    ```
+    ```Java
     if (!(otherObject instanceof ClassName)) return false;
     ```
 * 将 otherObject 转换为相应的类型变量：
-  ```
+  ```Java
   ClassName other = (ClassName) otherObject;
   ```
 * 对所有需要比较的域进行比较，用 == 比较基本类型，用 equals 比较对象域

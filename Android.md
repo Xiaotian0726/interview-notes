@@ -43,11 +43,11 @@ Drawable 是一个抽象类，是 “所有可绘制东西” 的一个抽象，
 
 ## Drawable 作用于 View
 通过 View 的 setBackgroundColor 方法可以设置颜色为 View 的背景。比如：
-```
+```Java
 button.setBackgroundColor(Color.YELLOW);
 ```
 也可以用自定义的shape作为背景。先用先用 xml 自定义一个圆角空心描边矩形 shape ：
-```
+```xml
 <shape
      android:shape="rectangle">
     <corners android:radius="4dp"/>
@@ -56,12 +56,12 @@ button.setBackgroundColor(Color.YELLOW);
 </shape>
 ```
 然后通过 setBackgroundResource 进行设置
-```
+```Java
 button.setBackgroundResource(R.drawable.bk_normal);
 ```
 
 下面是 Drawable 的几个抽象方法：
-```
+```Java
 public abstract void draw(@NonNull Canvas canvas);
 public abstract void setAlpha(@IntRange(from=0,to=255) int alpha);
 public abstract void setColorFilter(@Nullable ColorFilter colorFilter);
@@ -158,13 +158,13 @@ SQLiteOpenHelper 中还有两个非常重要的实例方法：getReadableDatabas
 Message 是一个数据模型，可以携带少量数据在线程之间传递
 
 Handler 用于发送和接受消息，有三个主要方法：
-```
+```Java
 sendMessage();
 dispatchMessage();
 handleMessage();
 ```
 Handler 使用 sendMessage 方法会把消息压入消息队列中
-```
+```Java
 public class Handler {
 
     private MessageQueue mQueue;
@@ -207,23 +207,23 @@ ANR 的全称是 Application Not Responding（应用程序无响应）
 
 ## ANR 的类型
 * KeyDispatchTimeout：最常见的类型，View 的点击事件或触摸事件在 5 秒内没有响应
-  ```
-    // How long we wait until we timeout on key dispatching.
-    static final int KEY_DISPATCHING_TIMEOUT = 5*1000;
+  ```Java
+  // How long we wait until we timeout on key dispatching.
+  static final int KEY_DISPATCHING_TIMEOUT = 5*1000;
   ```
 * BroadcastTimeout：广播的超时时间，分别 FG 和 BG，分别是 10 秒和 60 秒
-  ```
-    // How long we allow a receiver to run before giving up on it.
-    static final int BROADCAST_FG_TIMEOUT = 10*1000;
-    static final int BROADCAST_BG_TIMEOUT = 60*1000;
+  ```Java
+  // How long we allow a receiver to run before giving up on it.
+  static final int BROADCAST_FG_TIMEOUT = 10*1000;
+  static final int BROADCAST_BG_TIMEOUT = 60*1000;
   ```
 * ServiceTimeout：Service 的各个生命周期函数在特定时间（20秒）内无法完成处理
-  ```
-    // How long we wait for a service to finish executing.
-    static final int SERVICE_TIMEOUT = 20*1000;
+  ```Java
+  // How long we wait for a service to finish executing.
+  static final int SERVICE_TIMEOUT = 20*1000;
  
-    // How long we wait for a service to finish executing.
-    static final int SERVICE_BACKGROUND_TIMEOUT = SERVICE_TIMEOUT * 10;
+  // How long we wait for a service to finish executing.
+  static final int SERVICE_BACKGROUND_TIMEOUT = SERVICE_TIMEOUT * 10;
   ```
 
 ## 如何避免 ANR
